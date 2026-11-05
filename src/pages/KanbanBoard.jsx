@@ -18,7 +18,7 @@ import { STATUSES } from '../lib/constants.js';
 import { filterTasks, sortTasks } from '../lib/taskUtils.js';
 
 export default function KanbanBoard({ filters, onFiltersChange, onEdit, onDelete, onNewTask }) {
-  const { tasks, categories, moveTask, toggleComplete } = useTasks();
+  const { tasks, categories, members, moveTask, toggleComplete } = useTasks();
   const [dragOverCol, setDragOverCol] = useState(null);   // for the highlight
 
   const visible = useMemo(
@@ -42,7 +42,7 @@ export default function KanbanBoard({ filters, onFiltersChange, onEdit, onDelete
   return (
     <div className="page">
       <FilterBar filters={filters} onChange={onFiltersChange}
-                 categories={categories} showStatus={false} resultCount={visible.length} />
+                 categories={categories} members={members} showStatus={false} resultCount={visible.length} />
 
       <div className="kanban">
         {STATUSES.map((status) => {
@@ -64,7 +64,7 @@ export default function KanbanBoard({ filters, onFiltersChange, onEdit, onDelete
               <div className="kanban-body">
                 {columnTasks.map((task) => (
                   <div key={task.id} className="kanban-item">
-                    <TaskCard task={task} categories={categories}
+                    <TaskCard task={task} categories={categories} members={members}
                               onEdit={onEdit} onDelete={onDelete} onToggle={toggleComplete}
                               draggable onDragStart={handleDragStart} />
                     {/* Click-based alternative to dragging. */}

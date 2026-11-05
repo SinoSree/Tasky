@@ -24,6 +24,7 @@ const PATHS = {
   trending:  'M23 6l-9.5 9.5-5-5L1 18',
   menu:      'M3 6h18M3 12h18M3 18h18',
   inbox:     'M22 12h-6l-2 3h-4l-2-3H2M5.5 5h13l3.5 7v6a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2v-6z',
+  users:     'M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM22 21v-2a4 4 0 0 0-3-3.9M16 3.1a4 4 0 0 1 0 7.8',
 };
 
 export default function Icon({ name, size = 18, className = '' }) {

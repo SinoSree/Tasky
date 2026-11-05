@@ -11,7 +11,7 @@ import { getStats, isOverdue, sortTasks, parseDateInput, startOfToday } from '..
 import { STATUSES } from '../lib/constants.js';
 
 export default function Dashboard({ onEdit, onDelete, onNewTask }) {
-  const { tasks, categories, toggleComplete } = useTasks();
+  const { tasks, categories, members, toggleComplete } = useTasks();
 
   // useMemo caches the result and only recalculates when `tasks` changes.
   const stats = useMemo(() => getStats(tasks), [tasks]);
@@ -93,7 +93,7 @@ export default function Dashboard({ onEdit, onDelete, onNewTask }) {
           ) : (
             <div className="card-stack">
               {dueSoon.map((task) => (
-                <TaskCard key={task.id} task={task} categories={categories}
+                <TaskCard key={task.id} task={task} categories={categories} members={members}
                           onEdit={onEdit} onDelete={onDelete} onToggle={toggleComplete} />
               ))}
             </div>
@@ -111,7 +111,7 @@ export default function Dashboard({ onEdit, onDelete, onNewTask }) {
           ) : (
             <div className="card-stack">
               {recent.map((task) => (
-                <TaskCard key={task.id} task={task} categories={categories}
+                <TaskCard key={task.id} task={task} categories={categories} members={members}
                           onEdit={onEdit} onDelete={onDelete} onToggle={toggleComplete} />
               ))}
             </div>

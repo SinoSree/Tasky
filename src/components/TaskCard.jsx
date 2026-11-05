@@ -5,9 +5,11 @@
 import React from 'react';
 import Icon from './Icon.jsx';
 import { PriorityBadge, CategoryBadge } from './Badge.jsx';
+import Avatar, { UnassignedAvatar } from './Avatar.jsx';
 import { formatDueDate, isOverdue } from '../lib/taskUtils.js';
 
-export default function TaskCard({ task, categories, onEdit, onDelete, onToggle, draggable = false, onDragStart }) {
+export default function TaskCard({ task, categories, members = [], onEdit, onDelete, onToggle, draggable = false, onDragStart }) {
+  const assignee = members.find((m) => m.id === task.assigneeId);
   const overdue = isOverdue(task);
 
   return (
@@ -48,6 +50,11 @@ export default function TaskCard({ task, categories, onEdit, onDelete, onToggle,
             {formatDueDate(task.dueDate)}
           </span>
         )}
+        <span className="task-card-assignee">
+          {assignee
+            ? <Avatar name={assignee.name} color={assignee.color} size={22} title={`Assigned to ${assignee.name}`} />
+            : <UnassignedAvatar size={22} />}
+        </span>
       </div>
     </article>
   );

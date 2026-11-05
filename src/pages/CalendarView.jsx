@@ -13,7 +13,7 @@ import { buildMonthGrid, toDateInput, startOfToday } from '../lib/taskUtils.js';
 const WEEKDAYS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
 
 export default function CalendarView({ onEdit, onDelete, onNewTask }) {
-  const { tasks, categories, toggleComplete } = useTasks();
+  const { tasks, categories, members, toggleComplete } = useTasks();
   const today = startOfToday();
 
   // Which month is on screen, and which day the user clicked.
@@ -107,7 +107,7 @@ export default function CalendarView({ onEdit, onDelete, onNewTask }) {
           ) : (
             <div className="card-stack">
               {selectedTasks.map((task) => (
-                <TaskCard key={task.id} task={task} categories={categories}
+                <TaskCard key={task.id} task={task} categories={categories} members={members}
                           onEdit={onEdit} onDelete={onDelete} onToggle={toggleComplete} />
               ))}
             </div>

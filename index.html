@@ -512,6 +512,121 @@ button { font-family: inherit; font-size: inherit; cursor: pointer; }
   .cat-grid { grid-template-columns: 1fr; }
   .btn-md { padding: 8px 11px; }
 }
+
+/* 7. AUTH, AVATARS, TEAM --------------------------------------------------- */
+
+/* --- Login screen --- */
+.auth-screen {
+  min-height: 100vh; display: flex; align-items: center; justify-content: center;
+  padding: 24px 16px;
+  background:
+    radial-gradient(900px 420px at 50% -10%, var(--blue-50), transparent 70%),
+    var(--gray-0);
+}
+.auth-card {
+  width: 100%; max-width: 396px;
+  background: #fff; border: 1px solid var(--gray-200);
+  border-radius: var(--radius-xl); padding: 30px 28px 26px;
+  box-shadow: var(--shadow-lg);
+}
+.auth-brand { display: flex; flex-direction: column; align-items: center; gap: 4px; margin-bottom: 20px; }
+.brand-mark-lg { width: 46px; height: 46px; font-size: 21px; border-radius: 13px; margin-bottom: 8px; }
+.auth-title { font-size: 21px; font-weight: 680; color: var(--gray-900); letter-spacing: -.025em; }
+.auth-sub { font-size: 13.5px; color: var(--gray-500); text-align: center; }
+
+.auth-form { display: flex; flex-direction: column; gap: 14px; }
+.auth-submit { width: 100%; justify-content: center; margin-top: 2px; }
+.btn:disabled { opacity: .6; cursor: not-allowed; }
+
+.auth-links { display: flex; flex-direction: column; align-items: center; gap: 7px; padding-top: 2px; }
+.link-btn {
+  background: none; border: none; padding: 2px 4px;
+  font-size: 12.5px; font-weight: 550; color: var(--blue-600);
+  border-radius: var(--radius-sm);
+}
+.link-btn:hover { color: var(--blue-700); text-decoration: underline; }
+
+.auth-msg {
+  display: flex; align-items: flex-start; gap: 8px;
+  padding: 10px 12px; margin-bottom: 14px;
+  border-radius: var(--radius); font-size: 12.5px; line-height: 1.45;
+}
+.auth-msg-error { background: var(--red-50);   color: var(--red-700);   border: 1px solid #fecaca; }
+.auth-msg-ok    { background: var(--green-50); color: var(--green-700); border: 1px solid #a7f3d0; }
+
+.auth-demo-note {
+  margin-top: 6px; padding: 11px 12px;
+  background: var(--gray-50); border: 1px solid var(--gray-200);
+  border-radius: var(--radius); font-size: 11.5px; line-height: 1.55; color: var(--gray-500);
+}
+.auth-demo-note strong { color: var(--gray-700); }
+.auth-demo-note code {
+  font-size: 11px; padding: 1px 4px; background: var(--gray-200);
+  border-radius: 4px; color: var(--gray-700); word-break: break-all;
+}
+
+.loading-note { font-size: 13.5px; color: var(--gray-500); text-align: center; padding: 32px 0; }
+
+/* --- Sync error banner --- */
+.sync-error {
+  display: flex; align-items: center; gap: 10px;
+  margin: 14px 32px -6px; padding: 10px 12px;
+  background: var(--red-50); border: 1px solid #fecaca;
+  border-radius: var(--radius); color: var(--red-700); font-size: 12.5px;
+}
+.sync-error span { flex: 1; }
+
+/* --- Avatars --- */
+.avatar {
+  display: inline-grid; place-items: center; flex-shrink: 0;
+  border-radius: 50%; color: #fff;
+  font-weight: 650; letter-spacing: .01em; line-height: 1;
+  box-shadow: 0 0 0 2px #fff;
+  user-select: none;
+}
+.avatar-empty {
+  background: var(--gray-100); color: var(--gray-400);
+  border: 1.5px dashed var(--gray-300); box-shadow: none; font-size: 11px;
+}
+.task-card-assignee { margin-left: auto; display: inline-flex; }
+.task-row-assignee { flex-shrink: 0; display: inline-flex; }
+
+/* --- User menu in the sidebar --- */
+.user-menu { position: relative; }
+.user-trigger {
+  display: flex; align-items: center; gap: 10px; width: 100%;
+  padding: 7px 8px; border: none; background: transparent;
+  border-radius: var(--radius); text-align: left; transition: background .14s;
+}
+.user-trigger:hover { background: var(--gray-100); }
+.user-trigger-text { display: flex; flex-direction: column; min-width: 0; }
+.user-trigger-name {
+  font-size: 12.5px; font-weight: 600; color: var(--gray-900);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.user-trigger-mode { font-size: 11px; color: var(--gray-400); }
+
+.user-pop {
+  position: absolute; bottom: calc(100% + 6px); left: 0; right: 0;
+  background: #fff; border: 1px solid var(--gray-200);
+  border-radius: var(--radius); box-shadow: var(--shadow-lg);
+  padding: 11px 12px; z-index: 50;
+  animation: rise .16s cubic-bezier(.2,.8,.3,1);
+}
+.user-pop-name  { font-size: 13px; font-weight: 650; color: var(--gray-900); }
+.user-pop-email { font-size: 11.5px; color: var(--gray-500); word-break: break-all; }
+.user-pop-mode  { font-size: 11px; color: var(--gray-400); margin-top: 4px; }
+.user-pop-signout {
+  display: flex; align-items: center; gap: 6px;
+  width: 100%; margin-top: 10px; padding: 7px 9px;
+  background: var(--red-50); color: var(--red-700);
+  border: 1px solid #fecaca; border-radius: var(--radius-sm);
+  font-size: 12.5px; font-weight: 600; transition: background .14s;
+}
+.user-pop-signout:hover { background: #fee2e2; }
+
+@media (max-width: 1100px) { .task-row-assignee { display: none; } }
+@media (max-width: 760px)  { .sync-error { margin: 12px 18px -4px; } }
 </style>
 </head>
 <body>
@@ -519,6 +634,7 @@ button { font-family: inherit; font-size: inherit; cursor: pointer; }
 
 <script src="https://unpkg.com/react@18.3.1/umd/react.production.min.js" crossorigin></script>
 <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.production.min.js" crossorigin></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.47.10/dist/umd/supabase.min.js" crossorigin></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.26.4/babel.min.js" crossorigin></script>
 
 <script type="text/babel" data-presets="react">
@@ -560,10 +676,27 @@ const DEFAULT_CATEGORIES = [
 const STORAGE_KEYS = {
   tasks: 'tm.tasks.v1',
   categories: 'tm.categories.v1',
+  members: 'tm.members.v1',
 };
 
 // Small helper: look up a status/priority/category object by its id.
 const findById = (list, id) => list.find((item) => item.id === id);
+
+// People a task can be assigned to. In cloud mode these live in the
+// `members` table instead, but the shape is identical.
+const DEFAULT_MEMBERS = [
+  { id: 'm_you',   name: 'You',          color: '#2563eb' },
+  { id: 'm_anita', name: 'Anita Kumar',  color: '#7c3aed' },
+  { id: 'm_ravi',  name: 'Ravi Menon',   color: '#059669' },
+];
+
+// Initials for an avatar: "Anita Kumar" → "AK", "You" → "YO".
+function initialsOf(name) {
+  const parts = (name || '').trim().split(/\s+/).filter(Boolean);
+  if (parts.length === 0) return '?';
+  if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
+  return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+}
 
 /* ===== src/lib/storage.js ===== */
 // ---------------------------------------------------------------------------
@@ -667,6 +800,11 @@ function filterTasks(tasks, filters) {
     if (filters.status   && filters.status   !== 'all' && task.status   !== filters.status)   return false;
     if (filters.priority && filters.priority !== 'all' && task.priority !== filters.priority) return false;
     if (filters.category && filters.category !== 'all' && task.category !== filters.category) return false;
+    if (filters.assignee && filters.assignee !== 'all') {
+      // 'none' matches tasks with nobody assigned.
+      if (filters.assignee === 'none') { if (task.assigneeId) return false; }
+      else if (task.assigneeId !== filters.assignee) return false;
+    }
 
     if (query) {
       const haystack = `${task.title} ${task.description || ''}`.toLowerCase();
@@ -735,166 +873,711 @@ function buildMonthGrid(year, month) {
   return cells;
 }
 
-/* ===== src/hooks/useLocalStorage.js ===== */
+/* ===== src/lib/supabaseConfig.js ===== */
 // ---------------------------------------------------------------------------
-// useLocalStorage.js  — a custom React hook.
+// supabaseConfig.js
 //
-// A "hook" is just a function starting with `use` that can call other hooks.
-// This one is a drop-in replacement for useState that ALSO saves to
-// localStorage, so the value survives a page refresh.
+// ⚠️  THIS IS THE ONLY FILE YOU NEED TO EDIT TO TURN ON REAL ACCOUNTS.
 //
-//   const [tasks, setTasks] = useLocalStorage('tm.tasks.v1', []);
+// While these two values are empty the app runs in DEMO MODE: it works
+// exactly as before, saving to this browser only, with a fake local sign-in.
+// Fill them in and the app switches to real accounts with cloud sync.
 //
-// Like useState, `initialValue` may be a FUNCTION. That form is useful when
-// building the default is expensive (e.g. generating sample tasks) because
-// the function only runs when there is nothing saved yet.
+// Where to get them:
+//   1. Create a free project at https://supabase.com
+//   2. Project Settings → API
+//   3. Copy "Project URL" and the "anon / public" key below
+//   4. Run supabase/schema.sql in the Supabase SQL editor
+//
+// Is it safe to commit the anon key to a public repo?
+//   Yes. The anon key is designed to be public and ships inside every
+//   browser app. It grants NO access on its own — the Row Level Security
+//   policies in schema.sql are what actually protect your data, and they
+//   restrict every row to the user who owns it.
+//   NEVER put the "service_role" key here. That one bypasses all security.
 // ---------------------------------------------------------------------------
 
-function useLocalStorage(key, initialValue) {
-  // The function form of useState runs ONLY on the first render, so we don't
-  // re-read localStorage on every single render.
-  const [value, setValue] = useState(() => {
-    // Unwrap a lazy initializer. Without this, passing `seedTasks` would
-    // store the FUNCTION itself as the state, and `tasks.filter(...)` would
-    // blow up with "tasks.filter is not a function".
-    const fallback = typeof initialValue === 'function' ? initialValue() : initialValue;
-    return loadJSON(key, fallback);
+const SUPABASE_URL = '';
+const SUPABASE_ANON_KEY = '';
+
+// True only when both values above are filled in.
+const isCloudConfigured = () =>
+  Boolean(SUPABASE_URL && SUPABASE_ANON_KEY);
+
+/* ===== src/lib/supabaseClient.js ===== */
+// ---------------------------------------------------------------------------
+// supabaseClient.js
+//
+// Creates the one shared Supabase client used by the whole app.
+//
+// The Supabase library is loaded from a CDN <script> tag, which puts it on
+// `window.supabase`. We use the CDN rather than an npm import so the app
+// keeps working in the no-build single-file version too.
+// ---------------------------------------------------------------------------
+
+let client = null;
+
+function getSupabase() {
+  // Already built it once? Reuse it. Creating two clients would mean two
+  // separate auth sessions fighting over the same browser storage.
+  if (client) return client;
+
+  if (!isCloudConfigured()) return null;          // demo mode
+
+  const lib = typeof window !== 'undefined' ? window.supabase : null;
+  if (!lib || typeof lib.createClient !== 'function') {
+    console.warn(
+      '[supabase] The Supabase script did not load. Check the <script> tag ' +
+      'in index.html / dev.html, and your internet connection.'
+    );
+    return null;
+  }
+
+  client = lib.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+    auth: {
+      persistSession: true,      // stay signed in across refreshes
+      autoRefreshToken: true,    // renew the token before it expires
+    },
+  });
+  return client;
+}
+
+// Turns Supabase's error objects into something worth showing a person.
+function friendlyAuthError(error) {
+  if (!error) return '';
+  const msg = (error.message || String(error)).toLowerCase();
+  if (msg.includes('invalid login credentials')) return 'That email and password do not match an account.';
+  if (msg.includes('email not confirmed'))       return 'Please confirm your email address first — check your inbox.';
+  if (msg.includes('user already registered'))   return 'An account with that email already exists. Try signing in.';
+  if (msg.includes('password should be at least')) return 'Password must be at least 6 characters.';
+  if (msg.includes('unable to validate email'))  return 'That does not look like a valid email address.';
+  if (msg.includes('rate limit') || msg.includes('too many')) return 'Too many attempts. Please wait a minute and try again.';
+  if (msg.includes('failed to fetch'))           return 'Could not reach the server. Check your connection.';
+  return error.message || 'Something went wrong. Please try again.';
+}
+
+/* ===== src/lib/repo.js ===== */
+// ---------------------------------------------------------------------------
+// repo.js  — the data layer.
+//
+// Two implementations of the SAME interface:
+//
+//   localRepo  → reads/writes browser localStorage   (demo mode)
+//   cloudRepo  → reads/writes Supabase tables        (signed in for real)
+//
+// Every method is async, even the local one, so the rest of the app can
+// `await` without caring which is in use. This is the whole reason swapping
+// in a backend did not mean rewriting the components.
+//
+// Database columns are snake_case (SQL convention); our JavaScript objects
+// are camelCase (JS convention). The two `map` helpers translate between them.
+// ---------------------------------------------------------------------------
+
+// --- translation between database rows and app objects ---------------------
+
+const rowToTask = (r) => ({
+  id: r.id,
+  title: r.title,
+  description: r.description || '',
+  status: r.status,
+  priority: r.priority,
+  category: r.category,
+  dueDate: r.due_date || '',
+  assigneeId: r.assignee_id || '',
+  createdAt: new Date(r.created_at).getTime(),
+  updatedAt: new Date(r.updated_at).getTime(),
+});
+
+const taskToRow = (t) => ({
+  title: t.title,
+  description: t.description || '',
+  status: t.status,
+  priority: t.priority,
+  category: t.category,
+  // Empty string is not a valid DATE in SQL — it has to be null.
+  due_date: t.dueDate || null,
+  assignee_id: t.assigneeId || null,
+});
+
+const rowToMember = (r) => ({ id: r.id, name: r.name, color: r.color });
+const rowToCategory = (r) => ({ id: r.id, label: r.label, color: r.color });
+
+// ===========================================================================
+// LOCAL (demo mode)
+// ===========================================================================
+function makeLocalRepo() {
+  const read  = (key, fallback) => loadJSON(key, fallback);
+  const write = (key, value) => { saveJSON(key, value); return value; };
+
+  // `newestFirst` makes the local store return tasks in the same order the
+  // cloud store does (created_at descending), so the two modes look identical.
+  const collection = (key, newestFirst = false) => ({
+    async list() {
+      const rows = read(key, []);
+      return newestFirst
+        ? [...rows].sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0))
+        : rows;
+    },
+    async create(item) {
+      const now = Date.now();
+      // Keep an id the caller supplied. Categories use a slug id ("work")
+      // that tasks refer to by name, so overwriting it would orphan them.
+      const record = { ...item, id: item.id || createId(), createdAt: now, updatedAt: now };
+      // Append, so members and categories keep the order they were added in.
+      write(key, [...read(key, []), record]);
+      return record;
+    },
+    async update(id, patch) {
+      const next = read(key, []).map((r) =>
+        r.id === id ? { ...r, ...patch, updatedAt: Date.now() } : r
+      );
+      write(key, next);
+      return next.find((r) => r.id === id) || null;
+    },
+    async remove(id) {
+      write(key, read(key, []).filter((r) => r.id !== id));
+      return true;
+    },
+    async replaceAll(items) {
+      return write(key, items);
+    },
   });
 
-  // Skip the very first save: we just loaded this value, writing it back
-  // immediately would be pointless work.
-  const isFirstRun = useRef(true);
+  return {
+    mode: 'local',
+    tasks: collection(STORAGE_KEYS.tasks, true),
+    members: collection(STORAGE_KEYS.members),
+    categories: collection(STORAGE_KEYS.categories),
+  };
+}
 
-  useEffect(() => {
-    if (isFirstRun.current) {
-      isFirstRun.current = false;
-      return;
+// ===========================================================================
+// CLOUD (Supabase)
+// ===========================================================================
+//
+// Note on security: none of these queries filter by user_id. They do not need
+// to — the Row Level Security policies in supabase/schema.sql make the
+// database itself return only the signed-in user's rows. Enforcing it in the
+// database rather than the client is what makes it actually safe.
+//
+function makeCloudRepo(userId) {
+  const db = getSupabase();
+
+  // Wraps a Supabase call so a failure throws a readable Error.
+  const run = async (promise, what) => {
+    const { data, error } = await promise;
+    if (error) {
+      console.error(`[repo] ${what} failed:`, error);
+      throw new Error(`${what} failed: ${error.message}`);
     }
-    saveJSON(key, value);
-  }, [key, value]);
+    return data;
+  };
 
-  return [value, setValue];
+  return {
+    mode: 'cloud',
+
+    tasks: {
+      async list() {
+        const rows = await run(
+          db.from('tasks').select('*').order('created_at', { ascending: false }),
+          'Loading tasks'
+        );
+        return rows.map(rowToTask);
+      },
+      async create(task) {
+        const rows = await run(
+          db.from('tasks').insert({ ...taskToRow(task), user_id: userId }).select(),
+          'Creating the task'
+        );
+        return rowToTask(rows[0]);
+      },
+      async update(id, patch) {
+        const rows = await run(
+          db.from('tasks')
+            .update({ ...taskToRow(patch), updated_at: new Date().toISOString() })
+            .eq('id', id).select(),
+          'Saving the task'
+        );
+        return rows[0] ? rowToTask(rows[0]) : null;
+      },
+      async remove(id) {
+        await run(db.from('tasks').delete().eq('id', id), 'Deleting the task');
+        return true;
+      },
+    },
+
+    members: {
+      async list() {
+        const rows = await run(
+          db.from('members').select('*').order('name'),
+          'Loading team members'
+        );
+        return rows.map(rowToMember);
+      },
+      async create(member) {
+        const rows = await run(
+          db.from('members').insert({ name: member.name, color: member.color, user_id: userId }).select(),
+          'Adding the team member'
+        );
+        return rowToMember(rows[0]);
+      },
+      async update(id, patch) {
+        const rows = await run(
+          db.from('members').update({ name: patch.name, color: patch.color }).eq('id', id).select(),
+          'Saving the team member'
+        );
+        return rows[0] ? rowToMember(rows[0]) : null;
+      },
+      async remove(id) {
+        await run(db.from('members').delete().eq('id', id), 'Removing the team member');
+        return true;
+      },
+    },
+
+    categories: {
+      async list() {
+        const rows = await run(
+          db.from('categories').select('*').order('label'),
+          'Loading categories'
+        );
+        return rows.map(rowToCategory);
+      },
+      async create(cat) {
+        const rows = await run(
+          db.from('categories').insert({ id: cat.id, label: cat.label, color: cat.color, user_id: userId }).select(),
+          'Adding the category'
+        );
+        return rowToCategory(rows[0]);
+      },
+      async update(id, patch) {
+        const rows = await run(
+          db.from('categories').update({ label: patch.label, color: patch.color }).eq('id', id).select(),
+          'Saving the category'
+        );
+        return rows[0] ? rowToCategory(rows[0]) : null;
+      },
+      async remove(id) {
+        await run(db.from('categories').delete().eq('id', id), 'Removing the category');
+        return true;
+      },
+    },
+  };
+}
+
+// The only function the rest of the app calls.
+function getRepo(user) {
+  if (user && !user.isDemo && getSupabase()) return makeCloudRepo(user.id);
+  return makeLocalRepo();
+}
+
+/* ===== src/context/AuthContext.jsx ===== */
+// ---------------------------------------------------------------------------
+// AuthContext.jsx
+//
+// Handles "who is signed in". It has two modes and hides the difference from
+// the rest of the app:
+//
+//   DEMO MODE  (supabaseConfig.js is empty)
+//     A fake local sign-in. Pick a display name, everything saves to this
+//     browser. No password, no security — it just lets the app work.
+//
+//   CLOUD MODE (supabaseConfig.js is filled in)
+//     Real Supabase accounts: email + password, email confirmation,
+//     password reset, and data synced across devices.
+//
+// Every component just calls useAuth() and reads { user, signIn, signOut }.
+// ---------------------------------------------------------------------------
+
+const AuthContext = createContext(null);
+const DEMO_USER_KEY = 'tm.demoUser.v1';
+
+function AuthProvider({ children }) {
+  const cloud = isCloudConfigured();
+
+  const [user, setUser]       = useState(null);
+  const [loading, setLoading] = useState(true);   // true until we know
+  const [error, setError]     = useState('');
+  const [notice, setNotice]   = useState('');     // e.g. "check your email"
+
+  // --- work out who is signed in, once, on startup ------------------------
+  useEffect(() => {
+    let cancelled = false;
+
+    if (!cloud) {
+      // Demo mode: read the saved local profile, if any.
+      const saved = loadJSON(DEMO_USER_KEY, null);
+      if (!cancelled) { setUser(saved); setLoading(false); }
+      return () => { cancelled = true; };
+    }
+
+    const supabase = getSupabase();
+    if (!supabase) { setLoading(false); return () => { cancelled = true; }; }
+
+    // Ask Supabase whether a session is already stored in this browser.
+    supabase.auth.getSession().then(({ data }) => {
+      if (cancelled) return;
+      setUser(data?.session?.user ?? null);
+      setLoading(false);
+    });
+
+    // Then keep listening: sign-in, sign-out and token refresh all land here,
+    // including in other browser tabs.
+    const { data: sub } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (cancelled) return;
+      setUser(session?.user ?? null);
+    });
+
+    return () => {
+      cancelled = true;
+      sub?.subscription?.unsubscribe();   // always clean up listeners
+    };
+  }, [cloud]);
+
+  // --- actions ------------------------------------------------------------
+
+  const signIn = useCallback(async (email, password) => {
+    setError(''); setNotice('');
+    const supabase = getSupabase();
+    if (!supabase) { setError('Cloud mode is not configured.'); return false; }
+
+    const { data, error: err } = await supabase.auth.signInWithPassword({
+      email: email.trim(), password,
+    });
+    if (err) { setError(friendlyAuthError(err)); return false; }
+    setUser(data.user);
+    return true;
+  }, []);
+
+  const signUp = useCallback(async (email, password, fullName) => {
+    setError(''); setNotice('');
+    const supabase = getSupabase();
+    if (!supabase) { setError('Cloud mode is not configured.'); return false; }
+
+    const { data, error: err } = await supabase.auth.signUp({
+      email: email.trim(),
+      password,
+      // Anything in `data` is stored on the user as user_metadata.
+      options: { data: { full_name: (fullName || '').trim() } },
+    });
+    if (err) { setError(friendlyAuthError(err)); return false; }
+
+    // If email confirmation is ON there is no session yet — say so clearly
+    // instead of silently doing nothing.
+    if (!data.session) {
+      setNotice('Account created. Check your email to confirm it, then sign in.');
+      return true;
+    }
+    setUser(data.user);
+    return true;
+  }, []);
+
+  const resetPassword = useCallback(async (email) => {
+    setError(''); setNotice('');
+    const supabase = getSupabase();
+    if (!supabase) { setError('Cloud mode is not configured.'); return false; }
+    if (!email.trim()) { setError('Enter your email address first.'); return false; }
+
+    const { error: err } = await supabase.auth.resetPasswordForEmail(email.trim(), {
+      redirectTo: window.location.href.split('?')[0],
+    });
+    if (err) { setError(friendlyAuthError(err)); return false; }
+    setNotice('Password reset link sent. Check your email.');
+    return true;
+  }, []);
+
+  // Demo mode only: "sign in" is just choosing a display name.
+  const signInDemo = useCallback((name) => {
+    const clean = (name || '').trim();
+    if (!clean) { setError('Enter a name to continue.'); return false; }
+    const demoUser = {
+      id: 'demo-local-user',
+      email: '',
+      isDemo: true,
+      user_metadata: { full_name: clean },
+    };
+    saveJSON(DEMO_USER_KEY, demoUser);
+    setUser(demoUser);
+    setError('');
+    return true;
+  }, []);
+
+  const signOut = useCallback(async () => {
+    setError(''); setNotice('');
+    if (cloud) {
+      const supabase = getSupabase();
+      if (supabase) await supabase.auth.signOut();
+    } else {
+      saveJSON(DEMO_USER_KEY, null);
+    }
+    setUser(null);
+  }, [cloud]);
+
+  // A display name that always returns something sensible.
+  const displayName =
+    user?.user_metadata?.full_name?.trim() ||
+    user?.email?.split('@')[0] ||
+    'User';
+
+  const value = useMemo(() => ({
+    user, loading, error, notice, cloud,
+    isSignedIn: user !== null,
+    displayName,
+    signIn, signUp, signInDemo, signOut, resetPassword,
+    clearMessages: () => { setError(''); setNotice(''); },
+  }), [user, loading, error, notice, cloud, displayName,
+       signIn, signUp, signInDemo, signOut, resetPassword]);
+
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
+}
+
+function useAuth() {
+  const ctx = useContext(AuthContext);
+  if (!ctx) throw new Error('useAuth() must be used inside <AuthProvider>');
+  return ctx;
 }
 
 /* ===== src/context/TaskContext.jsx ===== */
 // ---------------------------------------------------------------------------
 // TaskContext.jsx
 //
-// React Context = a way to share data with every component in the tree
-// without "prop drilling" (passing props down through components that don't
-// care about them).
+// The single source of truth for tasks, team members and categories.
 //
-// Anything a component needs — the task list, addTask, deleteTask… — lives
-// here. A component gets it with:   const { tasks, addTask } = useTasks();
+// It no longer talks to localStorage directly. It asks `repo` (see lib/repo.js)
+// which is either the local store or Supabase depending on how you signed in.
+// Because every repo method is async, the loading/saving code looks the same
+// in both modes.
+//
+// Pattern used for every change: update React state immediately so the UI
+// feels instant, then send the change to the store. If the store rejects it,
+// reload from the store so the screen never lies about what was saved.
 // ---------------------------------------------------------------------------
 
 const TaskContext = createContext(null);
 
-// A few tasks so a brand-new user does not stare at an empty screen.
+// Sample tasks so a new account is not an empty void.
 function seedTasks() {
   const today = startOfToday();
-  const dayOffset = (n) => {
-    const d = new Date(today);
-    d.setDate(d.getDate() + n);
-    return toDateInput(d);
-  };
+  const offset = (n) => { const d = new Date(today); d.setDate(d.getDate() + n); return toDateInput(d); };
   const base = Date.now();
   return [
-    { id: createId(), title: 'Design the new onboarding flow', description: 'Wireframes for the 3-step signup.', status: 'in-progress', priority: 'high',   category: 'design',   dueDate: dayOffset(1),  createdAt: base - 5000, updatedAt: base - 5000 },
-    { id: createId(), title: 'Review Q4 analytics report',     description: 'Check retention and churn numbers.', status: 'todo',        priority: 'medium', category: 'work',     dueDate: dayOffset(4),  createdAt: base - 4000, updatedAt: base - 4000 },
-    { id: createId(), title: 'Fix login validation bug',       description: 'Email field accepts invalid formats.', status: 'todo',      priority: 'high',   category: 'urgent',   dueDate: dayOffset(-2), createdAt: base - 3000, updatedAt: base - 3000 },
-    { id: createId(), title: 'Read React performance guide',   description: 'Focus on memo and useCallback.',     status: 'todo',        priority: 'low',    category: 'learning', dueDate: dayOffset(9),  createdAt: base - 2000, updatedAt: base - 2000 },
-    { id: createId(), title: 'Book dentist appointment',       description: '',                                   status: 'done',        priority: 'low',    category: 'personal', dueDate: dayOffset(-5), createdAt: base - 1000, updatedAt: base - 1000 },
-    { id: createId(), title: 'Prepare sprint demo',            description: 'Slides + live walkthrough.',         status: 'in-progress', priority: 'medium', category: 'work',     dueDate: dayOffset(0),  createdAt: base - 500,  updatedAt: base - 500  },
-  ];
+    { title: 'Design the new onboarding flow', description: 'Wireframes for the 3-step signup.',  status: 'in-progress', priority: 'high',   category: 'design',   dueDate: offset(1),  assigneeId: 'm_anita' },
+    { title: 'Review Q4 analytics report',     description: 'Check retention and churn numbers.', status: 'todo',        priority: 'medium', category: 'work',     dueDate: offset(4),  assigneeId: 'm_you'   },
+    { title: 'Fix login validation bug',       description: 'Email field accepts invalid formats.', status: 'todo',      priority: 'high',   category: 'urgent',   dueDate: offset(-2), assigneeId: 'm_ravi'  },
+    { title: 'Read React performance guide',   description: 'Focus on memo and useCallback.',     status: 'todo',        priority: 'low',    category: 'learning', dueDate: offset(9),  assigneeId: ''        },
+    { title: 'Book dentist appointment',       description: '',                                   status: 'done',        priority: 'low',    category: 'personal', dueDate: offset(-5), assigneeId: 'm_you'   },
+    { title: 'Prepare sprint demo',            description: 'Slides + live walkthrough.',         status: 'in-progress', priority: 'medium', category: 'work',     dueDate: offset(0),  assigneeId: 'm_anita' },
+  ].map((t, i) => ({ ...t, id: createId(), createdAt: base - (6 - i) * 1000, updatedAt: base - (6 - i) * 1000 }));
 }
 
 function TaskProvider({ children }) {
-  const [tasks, setTasks] = useLocalStorage(STORAGE_KEYS.tasks, seedTasks);
-  const [categories, setCategories] = useLocalStorage(STORAGE_KEYS.categories, DEFAULT_CATEGORIES);
+  const { user, isSignedIn } = useAuth();
 
-  // useCallback keeps the same function identity between renders, which stops
-  // child components from re-rendering for no reason.
-  const addTask = useCallback((draft) => {
-    const now = Date.now();
-    const task = {
-      id: createId(),
+  const [tasks, setTasks]           = useState([]);
+  const [members, setMembers]       = useState([]);
+  const [categories, setCategories] = useState([]);
+  const [loading, setLoading]       = useState(true);
+  const [syncError, setSyncError]   = useState('');
+
+  // Rebuilt whenever the signed-in user changes, so signing out of a cloud
+  // account cannot leave you looking at that account's data.
+  const repo = useMemo(() => getRepo(user), [user]);
+  const repoRef = useRef(repo);
+  repoRef.current = repo;
+
+  // --- initial load -------------------------------------------------------
+  useEffect(() => {
+    let cancelled = false;
+
+    async function load() {
+      if (!isSignedIn) {            // signed out: show nothing
+        setTasks([]); setMembers([]); setCategories([]); setLoading(false);
+        return;
+      }
+      setLoading(true); setSyncError('');
+      try {
+        const [t, m, c] = await Promise.all([
+          repo.tasks.list(), repo.members.list(), repo.categories.list(),
+        ]);
+        if (cancelled) return;
+
+        // First run on this account: plant the starting data.
+        const seeded = c.length === 0 || m.length === 0 || t.length === 0;
+        if (c.length === 0) {
+          for (const cat of DEFAULT_CATEGORIES) await repo.categories.create(cat);
+        }
+        let memberList = m;
+        if (m.length === 0) {
+          memberList = [];
+          for (const mem of DEFAULT_MEMBERS) memberList.push(await repo.members.create(mem));
+        }
+        if (t.length === 0) {
+          // The seed references members by their DEFAULT_MEMBERS id, but the
+          // store assigns real ids (a uuid in the cloud). Map one to the other.
+          const idFor = (seedId) => {
+            const i = DEFAULT_MEMBERS.findIndex((d) => d.id === seedId);
+            return i >= 0 && memberList[i] ? memberList[i].id : null;
+          };
+          for (const task of seedTasks()) {
+            await repo.tasks.create({ ...task, assigneeId: idFor(task.assigneeId) || "" });
+          }
+        }
+        if (cancelled) return;
+
+        // Re-read after seeding so the order and ids come from the store
+        // itself, identically in both local and cloud mode.
+        const [t2, m2, c2] = seeded
+          ? await Promise.all([repo.tasks.list(), repo.members.list(), repo.categories.list()])
+          : [t, m, c];
+        if (cancelled) return;
+        setTasks(t2); setMembers(m2); setCategories(c2);
+      } catch (err) {
+        if (!cancelled) setSyncError(err.message || 'Could not load your data.');
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    }
+
+    load();
+    return () => { cancelled = true; };
+  }, [repo, isSignedIn]);
+
+  // Reload everything from the store — used to recover after a failed write.
+  const refresh = useCallback(async () => {
+    try {
+      const [t, m, c] = await Promise.all([
+        repoRef.current.tasks.list(), repoRef.current.members.list(), repoRef.current.categories.list(),
+      ]);
+      setTasks(t); setMembers(m); setCategories(c); setSyncError('');
+    } catch (err) {
+      setSyncError(err.message || 'Could not refresh your data.');
+    }
+  }, []);
+
+  // --- task actions -------------------------------------------------------
+
+  const addTask = useCallback(async (draft) => {
+    const clean = {
       title: draft.title.trim(),
       description: (draft.description || '').trim(),
       status: draft.status || 'todo',
       priority: draft.priority || 'medium',
       category: draft.category || 'work',
       dueDate: draft.dueDate || '',
-      createdAt: now,
-      updatedAt: now,
+      assigneeId: draft.assigneeId || '',
     };
-    // Always build a NEW array — React compares by reference to decide
-    // whether to re-render. Mutating the old array would change nothing.
-    setTasks((prev) => [task, ...prev]);
-    return task;
-  }, [setTasks]);
+    try {
+      const created = await repoRef.current.tasks.create(clean);
+      setTasks((prev) => [created, ...prev]);
+      return created;
+    } catch (err) { setSyncError(err.message); await refresh(); return null; }
+  }, [refresh]);
 
-  const updateTask = useCallback((id, patch) => {
-    setTasks((prev) =>
-      prev.map((t) => (t.id === id ? { ...t, ...patch, updatedAt: Date.now() } : t))
-    );
-  }, [setTasks]);
+  const updateTask = useCallback(async (id, patch) => {
+    const previous = tasks;
+    // Optimistic: show the change at once.
+    setTasks((prev) => prev.map((t) => (t.id === id ? { ...t, ...patch, updatedAt: Date.now() } : t)));
+    try {
+      await repoRef.current.tasks.update(id, patch);
+    } catch (err) {
+      setSyncError(err.message);
+      setTasks(previous);            // put it back the way it was
+    }
+  }, [tasks]);
 
-  const deleteTask = useCallback((id) => {
+  const deleteTask = useCallback(async (id) => {
+    const previous = tasks;
     setTasks((prev) => prev.filter((t) => t.id !== id));
-  }, [setTasks]);
+    try {
+      await repoRef.current.tasks.remove(id);
+    } catch (err) { setSyncError(err.message); setTasks(previous); }
+  }, [tasks]);
 
-  // Used by the Kanban board when a card is dropped in another column.
-  const moveTask = useCallback((id, status) => {
-    updateTask(id, { status });
-  }, [updateTask]);
+  const moveTask = useCallback((id, status) => updateTask(id, { status }), [updateTask]);
 
-  // Clicking the circle on a task card toggles done / not done.
+  const assignTask = useCallback((id, assigneeId) => updateTask(id, { assigneeId }), [updateTask]);
+
   const toggleComplete = useCallback((id) => {
-    setTasks((prev) =>
-      prev.map((t) =>
-        t.id === id
-          ? { ...t, status: t.status === 'done' ? 'todo' : 'done', updatedAt: Date.now() }
-          : t
-      )
-    );
-  }, [setTasks]);
+    const task = tasks.find((t) => t.id === id);
+    if (!task) return;
+    return updateTask(id, { status: task.status === 'done' ? 'todo' : 'done' });
+  }, [tasks, updateTask]);
 
-  const addCategory = useCallback((label, color) => {
-    const id = label.trim().toLowerCase().replace(/[^a-z0-9]+/g, '-');
-    if (!id) return null;
-    let created = null;
-    setCategories((prev) => {
-      if (prev.some((c) => c.id === id)) return prev;   // no duplicates
-      created = { id, label: label.trim(), color };
-      return [...prev, created];
-    });
-    return created;
-  }, [setCategories]);
-
-  const deleteCategory = useCallback((id) => {
-    setCategories((prev) => prev.filter((c) => c.id !== id));
-    // Tasks keep working: any task in the removed category falls back to 'work'.
-    setTasks((prev) => prev.map((t) => (t.category === id ? { ...t, category: 'work' } : t)));
-  }, [setCategories, setTasks]);
-
-  const clearCompleted = useCallback(() => {
+  const clearCompleted = useCallback(async () => {
+    const done = tasks.filter((t) => t.status === 'done');
     setTasks((prev) => prev.filter((t) => t.status !== 'done'));
-  }, [setTasks]);
+    try {
+      for (const t of done) await repoRef.current.tasks.remove(t.id);
+    } catch (err) { setSyncError(err.message); await refresh(); }
+  }, [tasks, refresh]);
 
-  // useMemo stops us from handing a brand-new object to every consumer on
-  // every render (which would re-render the entire app each time).
-  const value = useMemo(
-    () => ({ tasks, categories, addTask, updateTask, deleteTask, moveTask,
-             toggleComplete, addCategory, deleteCategory, clearCompleted }),
-    [tasks, categories, addTask, updateTask, deleteTask, moveTask,
-     toggleComplete, addCategory, deleteCategory, clearCompleted]
-  );
+  // --- member actions -----------------------------------------------------
+
+  const addMember = useCallback(async (name, color) => {
+    const clean = name.trim();
+    if (!clean) return null;
+    try {
+      const created = await repoRef.current.members.create({ name: clean, color });
+      setMembers((prev) => [...prev, created]);
+      return created;
+    } catch (err) { setSyncError(err.message); return null; }
+  }, []);
+
+  const updateMember = useCallback(async (id, patch) => {
+    const previous = members;
+    setMembers((prev) => prev.map((m) => (m.id === id ? { ...m, ...patch } : m)));
+    try { await repoRef.current.members.update(id, patch); }
+    catch (err) { setSyncError(err.message); setMembers(previous); }
+  }, [members]);
+
+  const deleteMember = useCallback(async (id) => {
+    const prevMembers = members;
+    const affected = tasks.filter((t) => t.assigneeId === id);
+    setMembers((prev) => prev.filter((m) => m.id !== id));
+    // Their tasks are not deleted — they simply become unassigned.
+    setTasks((prev) => prev.map((t) => (t.assigneeId === id ? { ...t, assigneeId: '' } : t)));
+    try {
+      for (const t of affected) await repoRef.current.tasks.update(t.id, { assigneeId: '' });
+      await repoRef.current.members.remove(id);
+    } catch (err) { setSyncError(err.message); setMembers(prevMembers); await refresh(); }
+  }, [members, tasks, refresh]);
+
+  // --- category actions ---------------------------------------------------
+
+  const addCategory = useCallback(async (label, color) => {
+    const clean = label.trim();
+    const id = clean.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+    if (!id || categories.some((c) => c.id === id)) return null;
+    try {
+      const created = await repoRef.current.categories.create({ id, label: clean, color });
+      setCategories((prev) => [...prev, created]);
+      return created;
+    } catch (err) { setSyncError(err.message); return null; }
+  }, [categories]);
+
+  const deleteCategory = useCallback(async (id) => {
+    const prevCats = categories;
+    const affected = tasks.filter((t) => t.category === id);
+    setCategories((prev) => prev.filter((c) => c.id !== id));
+    setTasks((prev) => prev.map((t) => (t.category === id ? { ...t, category: 'work' } : t)));
+    try {
+      for (const t of affected) await repoRef.current.tasks.update(t.id, { category: 'work' });
+      await repoRef.current.categories.remove(id);
+    } catch (err) { setSyncError(err.message); setCategories(prevCats); await refresh(); }
+  }, [categories, tasks, refresh]);
+
+  const value = useMemo(() => ({
+    tasks, members, categories, loading, syncError, mode: repo.mode,
+    addTask, updateTask, deleteTask, moveTask, assignTask, toggleComplete, clearCompleted,
+    addMember, updateMember, deleteMember,
+    addCategory, deleteCategory,
+    refresh, dismissSyncError: () => setSyncError(''),
+  }), [tasks, members, categories, loading, syncError, repo.mode,
+       addTask, updateTask, deleteTask, moveTask, assignTask, toggleComplete, clearCompleted,
+       addMember, updateMember, deleteMember, addCategory, deleteCategory, refresh]);
 
   return <TaskContext.Provider value={value}>{children}</TaskContext.Provider>;
 }
 
-// The hook every component uses to read the shared data.
 function useTasks() {
   const ctx = useContext(TaskContext);
   if (!ctx) throw new Error('useTasks() must be used inside <TaskProvider>');
@@ -927,6 +1610,7 @@ const PATHS = {
   trending:  'M23 6l-9.5 9.5-5-5L1 18',
   menu:      'M3 6h18M3 12h18M3 18h18',
   inbox:     'M22 12h-6l-2 3h-4l-2-3H2M5.5 5h13l3.5 7v6a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2v-6z',
+  users:     'M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM22 21v-2a4 4 0 0 0-3-3.9M16 3.1a4 4 0 0 1 0 7.8',
 };
 
 function Icon({ name, size = 18, className = '' }) {
@@ -940,6 +1624,37 @@ function Icon({ name, size = 18, className = '' }) {
     >
       <path d={PATHS[name] || ''} />
     </svg>
+  );
+}
+
+/* ===== src/components/Avatar.jsx ===== */
+// ---------------------------------------------------------------------------
+// Avatar.jsx — a coloured circle with a person's initials.
+// Used on task cards, task rows, the team page and the user menu.
+// ---------------------------------------------------------------------------
+
+function Avatar({ name, color = '#6b7280', size = 24, title }) {
+  return (
+    <span
+      className="avatar"
+      style={{
+        width: size, height: size,
+        backgroundColor: color,
+        fontSize: Math.max(9, Math.round(size * 0.4)),
+      }}
+      title={title || name}
+      aria-label={name}
+    >
+      {initialsOf(name)}
+    </span>
+  );
+}
+
+// Shown where a task has no assignee.
+function UnassignedAvatar({ size = 24 }) {
+  return (
+    <span className="avatar avatar-empty" style={{ width: size, height: size }}
+          title="Unassigned" aria-label="Unassigned">?</span>
   );
 }
 
@@ -1087,9 +1802,9 @@ function EmptyState({ icon = 'inbox', title, message, actionLabel, onAction }) {
 // ---------------------------------------------------------------------------
 
 // A blank task, used when creating rather than editing.
-const BLANK = { title: '', description: '', status: 'todo', priority: 'medium', category: 'work', dueDate: '' };
+const BLANK = { title: '', description: '', status: 'todo', priority: 'medium', category: 'work', dueDate: '', assigneeId: '' };
 
-function TaskForm({ initialTask, categories, onSubmit, onCancel }) {
+function TaskForm({ initialTask, categories, members = [], onSubmit, onCancel }) {
   // `initialTask ?? BLANK` → edit mode fills the fields, create mode is blank.
   const [form, setForm] = useState(() => ({ ...BLANK, ...(initialTask || {}) }));
   const [error, setError] = useState('');
@@ -1159,6 +1874,14 @@ function TaskForm({ initialTask, categories, onSubmit, onCancel }) {
         </div>
       </div>
 
+      <div className="field">
+        <label className="field-label" htmlFor="assigneeId">Assigned to</label>
+        <select id="assigneeId" name="assigneeId" className="input select" value={form.assigneeId} onChange={handleChange}>
+          <option value="">Unassigned</option>
+          {members.map((m) => <option key={m.id} value={m.id}>{m.name}</option>)}
+        </select>
+      </div>
+
       <div className="form-actions">
         <Button type="button" variant="ghost" onClick={onCancel}>Cancel</Button>
         <Button type="submit" variant="primary">{initialTask ? 'Save changes' : 'Create task'}</Button>
@@ -1173,7 +1896,8 @@ function TaskForm({ initialTask, categories, onSubmit, onCancel }) {
 // It is also draggable (HTML5 drag & drop, no library needed).
 // ---------------------------------------------------------------------------
 
-function TaskCard({ task, categories, onEdit, onDelete, onToggle, draggable = false, onDragStart }) {
+function TaskCard({ task, categories, members = [], onEdit, onDelete, onToggle, draggable = false, onDragStart }) {
+  const assignee = members.find((m) => m.id === task.assigneeId);
   const overdue = isOverdue(task);
 
   return (
@@ -1214,6 +1938,11 @@ function TaskCard({ task, categories, onEdit, onDelete, onToggle, draggable = fa
             {formatDueDate(task.dueDate)}
           </span>
         )}
+        <span className="task-card-assignee">
+          {assignee
+            ? <Avatar name={assignee.name} color={assignee.color} size={22} title={`Assigned to ${assignee.name}`} />
+            : <UnassignedAvatar size={22} />}
+        </span>
       </div>
     </article>
   );
@@ -1226,7 +1955,8 @@ function TaskCard({ task, categories, onEdit, onDelete, onToggle, draggable = fa
 // components instead of one component full of if-statements.
 // ---------------------------------------------------------------------------
 
-function TaskRow({ task, categories, onEdit, onDelete, onToggle }) {
+function TaskRow({ task, categories, members = [], onEdit, onDelete, onToggle }) {
+  const assignee = members.find((m) => m.id === task.assigneeId);
   const overdue = isOverdue(task);
 
   return (
@@ -1243,6 +1973,12 @@ function TaskRow({ task, categories, onEdit, onDelete, onToggle }) {
         <p className="task-row-title">{task.title}</p>
         {task.description && <p className="task-row-desc">{task.description}</p>}
       </div>
+
+      <span className="task-row-assignee">
+        {assignee
+          ? <Avatar name={assignee.name} color={assignee.color} size={24} title={`Assigned to ${assignee.name}`} />
+          : <UnassignedAvatar size={24} />}
+      </span>
 
       <div className="task-row-badges">
         <CategoryBadge category={task.category} categories={categories} />
@@ -1294,7 +2030,7 @@ function StatCard({ label, value, icon, tone = 'blue', hint }) {
 // (not the filter bar) decides what to do with a filter change.
 // ---------------------------------------------------------------------------
 
-function FilterBar({ filters, onChange, categories, showStatus = true, showSort = true, resultCount }) {
+function FilterBar({ filters, onChange, categories, members = [], showStatus = true, showSort = true, resultCount }) {
   // Change one key of the filters object, keep the rest.
   const set = (key, value) => onChange({ ...filters, [key]: value });
 
@@ -1330,6 +2066,12 @@ function FilterBar({ filters, onChange, categories, showStatus = true, showSort 
           {categories.map((c) => <option key={c.id} value={c.id}>{c.label}</option>)}
         </select>
 
+        <select className="input select select-sm" value={filters.assignee} onChange={(e) => set('assignee', e.target.value)} aria-label="Filter by assignee">
+          <option value="all">All assignees</option>
+          <option value="none">Unassigned</option>
+          {members.map((m) => <option key={m.id} value={m.id}>{m.name}</option>)}
+        </select>
+
         {showSort && (
           <select className="input select select-sm" value={filters.sortBy} onChange={(e) => set('sortBy', e.target.value)} aria-label="Sort tasks">
             <option value="newest">Newest first</option>
@@ -1348,6 +2090,162 @@ function FilterBar({ filters, onChange, categories, showStatus = true, showSort 
   );
 }
 
+/* ===== src/components/UserMenu.jsx ===== */
+// ---------------------------------------------------------------------------
+// UserMenu.jsx — who is signed in, plus the sign-out button.
+// Sits at the bottom of the sidebar.
+// ---------------------------------------------------------------------------
+
+function UserMenu() {
+  const { displayName, user, signOut, cloud } = useAuth();
+  const { mode } = useTasks();
+  const [open, setOpen] = useState(false);
+
+  return (
+    <div className="user-menu">
+      {open && (
+        <div className="user-pop">
+          <p className="user-pop-name">{displayName}</p>
+          {user?.email && <p className="user-pop-email">{user.email}</p>}
+          <p className="user-pop-mode">
+            {mode === 'cloud' ? 'Synced to the cloud' : 'Saved in this browser only'}
+          </p>
+          <button className="user-pop-signout" onClick={signOut}>
+            <Icon name="close" size={14} /> Sign out
+          </button>
+        </div>
+      )}
+
+      <button className="user-trigger" onClick={() => setOpen((o) => !o)}
+              aria-expanded={open} aria-label="Account menu">
+        <Avatar name={displayName} color={cloud ? '#2563eb' : '#6b7280'} size={28} />
+        <span className="user-trigger-text">
+          <span className="user-trigger-name">{displayName}</span>
+          <span className="user-trigger-mode">{mode === 'cloud' ? 'Cloud account' : 'Demo mode'}</span>
+        </span>
+      </button>
+    </div>
+  );
+}
+
+/* ===== src/components/LoginScreen.jsx ===== */
+// ---------------------------------------------------------------------------
+// LoginScreen.jsx — shown whenever nobody is signed in.
+//
+// It renders one of two things depending on whether supabaseConfig.js has
+// been filled in:
+//   cloud mode → real email + password sign in / sign up / reset
+//   demo mode  → just "what should we call you?"
+// ---------------------------------------------------------------------------
+
+function LoginScreen() {
+  const { cloud, signIn, signUp, signInDemo, resetPassword, error, notice, clearMessages } = useAuth();
+
+  const [mode, setMode] = useState('signin');       // 'signin' | 'signup'
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [fullName, setFullName] = useState('');
+  const [demoName, setDemoName] = useState('');
+  const [busy, setBusy] = useState(false);
+
+  const switchMode = (next) => { setMode(next); clearMessages(); };
+
+  const handleCloudSubmit = async (e) => {
+    e.preventDefault();
+    setBusy(true);
+    if (mode === 'signin') await signIn(email, password);
+    else await signUp(email, password, fullName);
+    setBusy(false);
+  };
+
+  const handleDemoSubmit = (e) => {
+    e.preventDefault();
+    signInDemo(demoName);
+  };
+
+  return (
+    <div className="auth-screen">
+      <div className="auth-card">
+        <div className="auth-brand">
+          <div className="brand-mark brand-mark-lg">T</div>
+          <h1 className="auth-title">Taskly</h1>
+          <p className="auth-sub">
+            {cloud
+              ? (mode === 'signin' ? 'Sign in to your account' : 'Create your account')
+              : 'Choose a name to get started'}
+          </p>
+        </div>
+
+        {error  && <div className="auth-msg auth-msg-error"><Icon name="alert" size={15} />{error}</div>}
+        {notice && <div className="auth-msg auth-msg-ok"><Icon name="check" size={15} />{notice}</div>}
+
+        {cloud ? (
+          <form className="auth-form" onSubmit={handleCloudSubmit}>
+            {mode === 'signup' && (
+              <div className="field">
+                <label className="field-label" htmlFor="fullName">Your name</label>
+                <input id="fullName" className="input" value={fullName} autoComplete="name"
+                       onChange={(e) => setFullName(e.target.value)} placeholder="Sinoj V V" />
+              </div>
+            )}
+
+            <div className="field">
+              <label className="field-label" htmlFor="email">Email</label>
+              <input id="email" type="email" className="input" value={email} required
+                     autoComplete="email" placeholder="you@example.com"
+                     onChange={(e) => setEmail(e.target.value)} />
+            </div>
+
+            <div className="field">
+              <label className="field-label" htmlFor="password">Password</label>
+              <input id="password" type="password" className="input" value={password} required
+                     minLength={6} placeholder="At least 6 characters"
+                     autoComplete={mode === 'signin' ? 'current-password' : 'new-password'}
+                     onChange={(e) => setPassword(e.target.value)} />
+            </div>
+
+            <Button type="submit" variant="primary" className="auth-submit" disabled={busy}>
+              {busy ? 'Please wait…' : mode === 'signin' ? 'Sign in' : 'Create account'}
+            </Button>
+
+            <div className="auth-links">
+              {mode === 'signin' ? (
+                <>
+                  <button type="button" className="link-btn" onClick={() => switchMode('signup')}>
+                    Create an account
+                  </button>
+                  <button type="button" className="link-btn" onClick={() => resetPassword(email)}>
+                    Forgot password?
+                  </button>
+                </>
+              ) : (
+                <button type="button" className="link-btn" onClick={() => switchMode('signin')}>
+                  Already have an account? Sign in
+                </button>
+              )}
+            </div>
+          </form>
+        ) : (
+          <form className="auth-form" onSubmit={handleDemoSubmit}>
+            <div className="field">
+              <label className="field-label" htmlFor="demoName">Your name</label>
+              <input id="demoName" className="input" value={demoName} autoFocus
+                     placeholder="e.g. Sinoj" onChange={(e) => setDemoName(e.target.value)} />
+            </div>
+            <Button type="submit" variant="primary" className="auth-submit">Continue</Button>
+
+            <p className="auth-demo-note">
+              <strong>Demo mode.</strong> There is no password and your tasks are saved
+              only in this browser. To switch on real accounts with cloud sync, fill in
+              <code>src/lib/supabaseConfig.js</code> — see the README.
+            </p>
+          </form>
+        )}
+      </div>
+    </div>
+  );
+}
+
 /* ===== src/components/Sidebar.jsx ===== */
 // ---------------------------------------------------------------------------
 // Sidebar.jsx — left navigation.
@@ -1359,6 +2257,7 @@ const NAV = [
   { id: 'tasks',      label: 'All Tasks',  icon: 'list' },
   { id: 'kanban',     label: 'Kanban',     icon: 'kanban' },
   { id: 'calendar',   label: 'Calendar',   icon: 'calendar' },
+  { id: 'team',       label: 'Team',       icon: 'users' },
   { id: 'categories', label: 'Categories', icon: 'tag' },
 ];
 
@@ -1413,7 +2312,7 @@ function Sidebar({ current, onNavigate, open, onClose }) {
         )}
 
         <div className="sidebar-foot">
-          <p className="foot-note">Saved automatically to this browser</p>
+          <UserMenu />
         </div>
       </aside>
     </>
@@ -1448,7 +2347,7 @@ function Topbar({ title, subtitle, onNewTask, onMenu }) {
 // ---------------------------------------------------------------------------
 
 function Dashboard({ onEdit, onDelete, onNewTask }) {
-  const { tasks, categories, toggleComplete } = useTasks();
+  const { tasks, categories, members, toggleComplete } = useTasks();
 
   // useMemo caches the result and only recalculates when `tasks` changes.
   const stats = useMemo(() => getStats(tasks), [tasks]);
@@ -1530,7 +2429,7 @@ function Dashboard({ onEdit, onDelete, onNewTask }) {
           ) : (
             <div className="card-stack">
               {dueSoon.map((task) => (
-                <TaskCard key={task.id} task={task} categories={categories}
+                <TaskCard key={task.id} task={task} categories={categories} members={members}
                           onEdit={onEdit} onDelete={onDelete} onToggle={toggleComplete} />
               ))}
             </div>
@@ -1548,7 +2447,7 @@ function Dashboard({ onEdit, onDelete, onNewTask }) {
           ) : (
             <div className="card-stack">
               {recent.map((task) => (
-                <TaskCard key={task.id} task={task} categories={categories}
+                <TaskCard key={task.id} task={task} categories={categories} members={members}
                           onEdit={onEdit} onDelete={onDelete} onToggle={toggleComplete} />
               ))}
             </div>
@@ -1565,7 +2464,7 @@ function Dashboard({ onEdit, onDelete, onNewTask }) {
 // ---------------------------------------------------------------------------
 
 function TaskList({ filters, onFiltersChange, onEdit, onDelete, onNewTask }) {
-  const { tasks, categories, toggleComplete, clearCompleted } = useTasks();
+  const { tasks, categories, members, toggleComplete, clearCompleted } = useTasks();
 
   // Filter first, then sort. Recalculated only when the inputs change.
   const visible = useMemo(
@@ -1578,12 +2477,12 @@ function TaskList({ filters, onFiltersChange, onEdit, onDelete, onNewTask }) {
   // an empty task list. The empty state message changes accordingly.
   const hasFilters =
     filters.search.trim() !== '' || filters.status !== 'all' ||
-    filters.priority !== 'all' || filters.category !== 'all';
+    filters.priority !== 'all' || filters.category !== 'all' || filters.assignee !== 'all';
 
   return (
     <div className="page">
       <FilterBar filters={filters} onChange={onFiltersChange}
-                 categories={categories} resultCount={visible.length} />
+                 categories={categories} members={members} resultCount={visible.length} />
 
       {completedCount > 0 && (
         <div className="list-toolbar">
@@ -1598,7 +2497,7 @@ function TaskList({ filters, onFiltersChange, onEdit, onDelete, onNewTask }) {
           <EmptyState icon="search" title="No matching tasks"
                       message="Try a different search term or reset the filters."
                       actionLabel="Reset filters"
-                      onAction={() => onFiltersChange({ search: '', status: 'all', priority: 'all', category: 'all', sortBy: filters.sortBy })} />
+                      onAction={() => onFiltersChange({ search: '', status: 'all', priority: 'all', category: 'all', assignee: 'all', sortBy: filters.sortBy })} />
         ) : (
           <EmptyState icon="inbox" title="No tasks yet"
                       message="Create your first task and it will appear here."
@@ -1607,7 +2506,7 @@ function TaskList({ filters, onFiltersChange, onEdit, onDelete, onNewTask }) {
       ) : (
         <div className="task-list">
           {visible.map((task) => (
-            <TaskRow key={task.id} task={task} categories={categories}
+            <TaskRow key={task.id} task={task} categories={categories} members={members}
                      onEdit={onEdit} onDelete={onDelete} onToggle={toggleComplete} />
           ))}
         </div>
@@ -1630,7 +2529,7 @@ function TaskList({ filters, onFiltersChange, onEdit, onDelete, onNewTask }) {
 // ---------------------------------------------------------------------------
 
 function KanbanBoard({ filters, onFiltersChange, onEdit, onDelete, onNewTask }) {
-  const { tasks, categories, moveTask, toggleComplete } = useTasks();
+  const { tasks, categories, members, moveTask, toggleComplete } = useTasks();
   const [dragOverCol, setDragOverCol] = useState(null);   // for the highlight
 
   const visible = useMemo(
@@ -1654,7 +2553,7 @@ function KanbanBoard({ filters, onFiltersChange, onEdit, onDelete, onNewTask }) 
   return (
     <div className="page">
       <FilterBar filters={filters} onChange={onFiltersChange}
-                 categories={categories} showStatus={false} resultCount={visible.length} />
+                 categories={categories} members={members} showStatus={false} resultCount={visible.length} />
 
       <div className="kanban">
         {STATUSES.map((status) => {
@@ -1676,7 +2575,7 @@ function KanbanBoard({ filters, onFiltersChange, onEdit, onDelete, onNewTask }) 
               <div className="kanban-body">
                 {columnTasks.map((task) => (
                   <div key={task.id} className="kanban-item">
-                    <TaskCard task={task} categories={categories}
+                    <TaskCard task={task} categories={categories} members={members}
                               onEdit={onEdit} onDelete={onDelete} onToggle={toggleComplete}
                               draggable onDragStart={handleDragStart} />
                     {/* Click-based alternative to dragging. */}
@@ -1718,7 +2617,7 @@ function KanbanBoard({ filters, onFiltersChange, onEdit, onDelete, onNewTask }) 
 const WEEKDAYS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
 
 function CalendarView({ onEdit, onDelete, onNewTask }) {
-  const { tasks, categories, toggleComplete } = useTasks();
+  const { tasks, categories, members, toggleComplete } = useTasks();
   const today = startOfToday();
 
   // Which month is on screen, and which day the user clicked.
@@ -1812,7 +2711,7 @@ function CalendarView({ onEdit, onDelete, onNewTask }) {
           ) : (
             <div className="card-stack">
               {selectedTasks.map((task) => (
-                <TaskCard key={task.id} task={task} categories={categories}
+                <TaskCard key={task.id} task={task} categories={categories} members={members}
                           onEdit={onEdit} onDelete={onDelete} onToggle={toggleComplete} />
               ))}
             </div>
@@ -1919,14 +2818,114 @@ function Categories() {
   );
 }
 
+/* ===== src/pages/Team.jsx ===== */
+// ---------------------------------------------------------------------------
+// Team.jsx — manage the people tasks can be assigned to.
+// Same shape as the Categories page, so the app stays predictable.
+// ---------------------------------------------------------------------------
+
+const TEAM_SWATCHES = ['#2563eb', '#7c3aed', '#db2777', '#dc2626', '#ea580c', '#059669', '#0891b2', '#475569'];
+
+function Team() {
+  const { tasks, members, addMember, deleteMember } = useTasks();
+  const [name, setName] = useState('');
+  const [color, setColor] = useState(TEAM_SWATCHES[0]);
+  const [error, setError] = useState('');
+  const [pendingDelete, setPendingDelete] = useState(null);
+
+  const openCount = (id) => tasks.filter((t) => t.assigneeId === id && t.status !== 'done').length;
+  const totalCount = (id) => tasks.filter((t) => t.assigneeId === id).length;
+
+  const handleAdd = async (e) => {
+    e.preventDefault();
+    const clean = name.trim();
+    if (!clean) { setError('Enter a name.'); return; }
+    if (members.some((m) => m.name.toLowerCase() === clean.toLowerCase())) {
+      setError('Someone with that name is already on the team.'); return;
+    }
+    await addMember(clean, color);
+    setName(''); setError('');
+  };
+
+  const unassigned = tasks.filter((t) => !t.assigneeId).length;
+
+  return (
+    <div className="page">
+      <section className="panel">
+        <div className="panel-head"><h2 className="panel-title">Add a team member</h2></div>
+
+        <form className="cat-form" onSubmit={handleAdd}>
+          <div className="field cat-field">
+            <input className={`input ${error ? 'input-error' : ''}`} placeholder="Full name, e.g. Priya Nair"
+                   value={name} onChange={(e) => { setName(e.target.value); setError(''); }} />
+            {error && <p className="field-error">{error}</p>}
+          </div>
+
+          <div className="swatches" role="radiogroup" aria-label="Avatar colour">
+            {TEAM_SWATCHES.map((c) => (
+              <button key={c} type="button" role="radio" aria-checked={color === c}
+                      className={`swatch ${color === c ? 'is-active' : ''}`}
+                      style={{ backgroundColor: c }} onClick={() => setColor(c)}
+                      aria-label={`Colour ${c}`} />
+            ))}
+          </div>
+
+          <Button type="submit" variant="primary" icon="plus">Add</Button>
+        </form>
+      </section>
+
+      <section className="panel">
+        <div className="panel-head">
+          <h2 className="panel-title">Your team</h2>
+          <span className="panel-meta">
+            {members.length} {members.length === 1 ? 'person' : 'people'}
+            {unassigned > 0 && ` · ${unassigned} unassigned task${unassigned === 1 ? '' : 's'}`}
+          </span>
+        </div>
+
+        <div className="cat-grid">
+          {members.map((m) => (
+            <div key={m.id} className="cat-card">
+              <Avatar name={m.name} color={m.color} size={34} />
+              <div className="cat-body">
+                <p className="cat-name">{m.name}</p>
+                <p className="cat-count">
+                  {openCount(m.id)} open · {totalCount(m.id)} total
+                </p>
+              </div>
+              <button className="icon-btn icon-btn-danger" onClick={() => setPendingDelete(m)}
+                      aria-label={`Remove ${m.name}`}>
+                <Icon name="trash" size={15} />
+              </button>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      <ConfirmDialog
+        open={pendingDelete !== null}
+        title="Remove team member"
+        confirmLabel="Remove"
+        message={pendingDelete
+          ? `Remove ${pendingDelete.name} from the team? Their ${totalCount(pendingDelete.id)} task(s) become unassigned. No task is deleted.`
+          : ''}
+        onCancel={() => setPendingDelete(null)}
+        onConfirm={() => { deleteMember(pendingDelete.id); setPendingDelete(null); }}
+      />
+    </div>
+  );
+}
+
 /* ===== src/App.jsx ===== */
 // ---------------------------------------------------------------------------
 // App.jsx — the root component.
 //
-// It owns three pieces of state:
-//   page      → which view is on screen (simple routing, no router library)
-//   filters   → shared by the list and the Kanban board
-//   editing   → null = closed, {} = creating, {task} = editing that task
+// Provider order matters: AuthProvider must wrap TaskProvider, because
+// TaskProvider calls useAuth() to decide where to load data from.
+//
+//   <AuthProvider>      who is signed in
+//     <TaskProvider>    their tasks, team and categories
+//       <Shell/>        the actual interface
 // ---------------------------------------------------------------------------
 
 const PAGE_META = {
@@ -1934,37 +2933,37 @@ const PAGE_META = {
   tasks:      { title: 'All Tasks',  subtitle: 'Search, filter and sort every task' },
   kanban:     { title: 'Kanban',     subtitle: 'Drag a card to change its status' },
   calendar:   { title: 'Calendar',   subtitle: 'See your tasks by due date' },
+  team:       { title: 'Team',       subtitle: 'People you can assign tasks to' },
   categories: { title: 'Categories', subtitle: 'Organise tasks into groups' },
 };
 
-const DEFAULT_FILTERS = { search: '', status: 'all', priority: 'all', category: 'all', sortBy: 'newest' };
+const DEFAULT_FILTERS = {
+  search: '', status: 'all', priority: 'all',
+  category: 'all', assignee: 'all', sortBy: 'newest',
+};
 
-// Shell is a separate component because it needs useTasks(), and a component
-// can only read a Context that one of its PARENTS provides. <TaskProvider>
-// wraps <Shell/> below, so Shell can read it but App itself could not.
 function Shell() {
-  const { categories, addTask, updateTask, deleteTask } = useTasks();
+  const { categories, members, loading, syncError, dismissSyncError,
+          addTask, updateTask, deleteTask } = useTasks();
 
   const [page, setPage] = useState('dashboard');
   const [filters, setFilters] = useState(DEFAULT_FILTERS);
   const [menuOpen, setMenuOpen] = useState(false);
-  const [editing, setEditing] = useState(null);        // null | { task?: Task }
+  const [editing, setEditing] = useState(null);
   const [pendingDelete, setPendingDelete] = useState(null);
 
   const openCreate = useCallback(() => setEditing({ task: null }), []);
   const openEdit   = useCallback((task) => setEditing({ task }), []);
   const closeForm  = useCallback(() => setEditing(null), []);
 
-  // One submit handler for both modes: if we have a task, update it,
-  // otherwise create a new one.
-  const handleSubmit = (values) => {
-    if (editing?.task) updateTask(editing.task.id, values);
-    else addTask(values);
+  const handleSubmit = async (values) => {
+    if (editing?.task) await updateTask(editing.task.id, values);
+    else await addTask(values);
     setEditing(null);
   };
 
-  const confirmDelete = () => {
-    deleteTask(pendingDelete.id);
+  const confirmDelete = async () => {
+    await deleteTask(pendingDelete.id);
     setPendingDelete(null);
   };
 
@@ -1976,6 +2975,7 @@ function Shell() {
       case 'tasks':      return <TaskList    filters={filters} onFiltersChange={setFilters} {...shared} />;
       case 'kanban':     return <KanbanBoard filters={filters} onFiltersChange={setFilters} {...shared} />;
       case 'calendar':   return <CalendarView {...shared} />;
+      case 'team':       return <Team />;
       case 'categories': return <Categories />;
       case 'dashboard':
       default:           return <Dashboard {...shared} />;
@@ -1990,11 +2990,21 @@ function Shell() {
       <main className="main">
         <Topbar title={meta.title} subtitle={meta.subtitle}
                 onNewTask={openCreate} onMenu={() => setMenuOpen(true)} />
-        {renderPage()}
+
+        {/* A failed save must never pass silently. */}
+        {syncError && (
+          <div className="sync-error">
+            <Icon name="alert" size={16} />
+            <span>{syncError}</span>
+            <button className="icon-btn" onClick={dismissSyncError} aria-label="Dismiss">
+              <Icon name="close" size={15} />
+            </button>
+          </div>
+        )}
+
+        {loading ? <div className="page"><p className="loading-note">Loading your tasks…</p></div> : renderPage()}
       </main>
 
-      {/* `key` forces React to build a FRESH form when the target task
-          changes, so the fields always show the right starting values. */}
       <Modal open={editing !== null}
              title={editing?.task ? 'Edit task' : 'New task'}
              onClose={closeForm}>
@@ -2002,6 +3012,7 @@ function Shell() {
           <TaskForm key={editing.task?.id || 'new'}
                     initialTask={editing.task}
                     categories={categories}
+                    members={members}
                     onSubmit={handleSubmit}
                     onCancel={closeForm} />
         )}
@@ -2018,11 +3029,29 @@ function Shell() {
   );
 }
 
-function App() {
+// Decides between the login screen and the app.
+function Gate() {
+  const { isSignedIn, loading } = useAuth();
+
+  // Without this check the login screen would flash for a moment on every
+  // refresh, before Supabase reports the stored session.
+  if (loading) {
+    return <div className="auth-screen"><p className="loading-note">Loading…</p></div>;
+  }
+  if (!isSignedIn) return <LoginScreen />;
+
   return (
     <TaskProvider>
       <Shell />
     </TaskProvider>
+  );
+}
+
+function App() {
+  return (
+    <AuthProvider>
+      <Gate />
+    </AuthProvider>
   );
 }
 

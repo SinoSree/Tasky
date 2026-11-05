@@ -10,7 +10,7 @@ import { useTasks } from '../context/TaskContext.jsx';
 import { filterTasks, sortTasks } from '../lib/taskUtils.js';
 
 export default function TaskList({ filters, onFiltersChange, onEdit, onDelete, onNewTask }) {
-  const { tasks, categories, toggleComplete, clearCompleted } = useTasks();
+  const { tasks, categories, members, toggleComplete, clearCompleted } = useTasks();
 
   // Filter first, then sort. Recalculated only when the inputs change.
   const visible = useMemo(
@@ -23,12 +23,12 @@ export default function TaskList({ filters, onFiltersChange, onEdit, onDelete, o
   // an empty task list. The empty state message changes accordingly.
   const hasFilters =
     filters.search.trim() !== '' || filters.status !== 'all' ||
-    filters.priority !== 'all' || filters.category !== 'all';
+    filters.priority !== 'all' || filters.category !== 'all' || filters.assignee !== 'all';
 
   return (
     <div className="page">
       <FilterBar filters={filters} onChange={onFiltersChange}
-                 categories={categories} resultCount={visible.length} />
+                 categories={categories} members={members} resultCount={visible.length} />
 
       {completedCount > 0 && (
         <div className="list-toolbar">
@@ -43,7 +43,7 @@ export default function TaskList({ filters, onFiltersChange, onEdit, onDelete, o
           <EmptyState icon="search" title="No matching tasks"
                       message="Try a different search term or reset the filters."
                       actionLabel="Reset filters"
-                      onAction={() => onFiltersChange({ search: '', status: 'all', priority: 'all', category: 'all', sortBy: filters.sortBy })} />
+                      onAction={() => onFiltersChange({ search: '', status: 'all', priority: 'all', category: 'all', assignee: 'all', sortBy: filters.sortBy })} />
         ) : (
           <EmptyState icon="inbox" title="No tasks yet"
                       message="Create your first task and it will appear here."
@@ -52,7 +52,7 @@ export default function TaskList({ filters, onFiltersChange, onEdit, onDelete, o
       ) : (
         <div className="task-list">
           {visible.map((task) => (
-            <TaskRow key={task.id} task={task} categories={categories}
+            <TaskRow key={task.id} task={task} categories={categories} members={members}
                      onEdit={onEdit} onDelete={onDelete} onToggle={toggleComplete} />
           ))}
         </div>

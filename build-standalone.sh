@@ -29,9 +29,13 @@ FILES="
 src/lib/constants.js
 src/lib/storage.js
 src/lib/taskUtils.js
-src/hooks/useLocalStorage.js
+src/lib/supabaseConfig.js
+src/lib/supabaseClient.js
+src/lib/repo.js
+src/context/AuthContext.jsx
 src/context/TaskContext.jsx
 src/components/Icon.jsx
+src/components/Avatar.jsx
 src/components/Button.jsx
 src/components/Badge.jsx
 src/components/Modal.jsx
@@ -42,6 +46,8 @@ src/components/TaskCard.jsx
 src/components/TaskRow.jsx
 src/components/StatCard.jsx
 src/components/FilterBar.jsx
+src/components/UserMenu.jsx
+src/components/LoginScreen.jsx
 src/components/Sidebar.jsx
 src/components/Topbar.jsx
 src/pages/Dashboard.jsx
@@ -49,6 +55,7 @@ src/pages/TaskList.jsx
 src/pages/KanbanBoard.jsx
 src/pages/CalendarView.jsx
 src/pages/Categories.jsx
+src/pages/Team.jsx
 src/App.jsx
 "
 
@@ -76,6 +83,7 @@ cat >> "$OUT" <<'MID'
 
 <script src="https://unpkg.com/react@18.3.1/umd/react.production.min.js" crossorigin></script>
 <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.production.min.js" crossorigin></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.47.10/dist/umd/supabase.min.js" crossorigin></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.26.4/babel.min.js" crossorigin></script>
 
 <script type="text/babel" data-presets="react">

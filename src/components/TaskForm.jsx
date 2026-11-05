@@ -10,9 +10,9 @@ import Button from './Button.jsx';
 import { STATUSES, PRIORITIES } from '../lib/constants.js';
 
 // A blank task, used when creating rather than editing.
-const BLANK = { title: '', description: '', status: 'todo', priority: 'medium', category: 'work', dueDate: '' };
+const BLANK = { title: '', description: '', status: 'todo', priority: 'medium', category: 'work', dueDate: '', assigneeId: '' };
 
-export default function TaskForm({ initialTask, categories, onSubmit, onCancel }) {
+export default function TaskForm({ initialTask, categories, members = [], onSubmit, onCancel }) {
   // `initialTask ?? BLANK` → edit mode fills the fields, create mode is blank.
   const [form, setForm] = useState(() => ({ ...BLANK, ...(initialTask || {}) }));
   const [error, setError] = useState('');
@@ -80,6 +80,14 @@ export default function TaskForm({ initialTask, categories, onSubmit, onCancel }
           <label className="field-label" htmlFor="dueDate">Due date</label>
           <input id="dueDate" name="dueDate" type="date" className="input" value={form.dueDate} onChange={handleChange} />
         </div>
+      </div>
+
+      <div className="field">
+        <label className="field-label" htmlFor="assigneeId">Assigned to</label>
+        <select id="assigneeId" name="assigneeId" className="input select" value={form.assigneeId} onChange={handleChange}>
+          <option value="">Unassigned</option>
+          {members.map((m) => <option key={m.id} value={m.id}>{m.name}</option>)}
+        </select>
       </div>
 
       <div className="form-actions">

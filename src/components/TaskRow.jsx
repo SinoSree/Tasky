@@ -6,9 +6,11 @@
 import React from 'react';
 import Icon from './Icon.jsx';
 import { PriorityBadge, StatusBadge, CategoryBadge } from './Badge.jsx';
+import Avatar, { UnassignedAvatar } from './Avatar.jsx';
 import { formatDueDate, isOverdue } from '../lib/taskUtils.js';
 
-export default function TaskRow({ task, categories, onEdit, onDelete, onToggle }) {
+export default function TaskRow({ task, categories, members = [], onEdit, onDelete, onToggle }) {
+  const assignee = members.find((m) => m.id === task.assigneeId);
   const overdue = isOverdue(task);
 
   return (
@@ -25,6 +27,12 @@ export default function TaskRow({ task, categories, onEdit, onDelete, onToggle }
         <p className="task-row-title">{task.title}</p>
         {task.description && <p className="task-row-desc">{task.description}</p>}
       </div>
+
+      <span className="task-row-assignee">
+        {assignee
+          ? <Avatar name={assignee.name} color={assignee.color} size={24} title={`Assigned to ${assignee.name}`} />
+          : <UnassignedAvatar size={24} />}
+      </span>
 
       <div className="task-row-badges">
         <CategoryBadge category={task.category} categories={categories} />

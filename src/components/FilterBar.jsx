@@ -10,7 +10,7 @@ import React from 'react';
 import Icon from './Icon.jsx';
 import { STATUSES, PRIORITIES } from '../lib/constants.js';
 
-export default function FilterBar({ filters, onChange, categories, showStatus = true, showSort = true, resultCount }) {
+export default function FilterBar({ filters, onChange, categories, members = [], showStatus = true, showSort = true, resultCount }) {
   // Change one key of the filters object, keep the rest.
   const set = (key, value) => onChange({ ...filters, [key]: value });
 
@@ -44,6 +44,12 @@ export default function FilterBar({ filters, onChange, categories, showStatus = 
         <select className="input select select-sm" value={filters.category} onChange={(e) => set('category', e.target.value)} aria-label="Filter by category">
           <option value="all">All categories</option>
           {categories.map((c) => <option key={c.id} value={c.id}>{c.label}</option>)}
+        </select>
+
+        <select className="input select select-sm" value={filters.assignee} onChange={(e) => set('assignee', e.target.value)} aria-label="Filter by assignee">
+          <option value="all">All assignees</option>
+          <option value="none">Unassigned</option>
+          {members.map((m) => <option key={m.id} value={m.id}>{m.name}</option>)}
         </select>
 
         {showSort && (

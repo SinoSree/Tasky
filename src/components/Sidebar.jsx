@@ -6,12 +6,14 @@ import React from 'react';
 import Icon from './Icon.jsx';
 import { useTasks } from '../context/TaskContext.jsx';
 import { isOverdue } from '../lib/taskUtils.js';
+import UserMenu from './UserMenu.jsx';
 
 const NAV = [
   { id: 'dashboard',  label: 'Dashboard',  icon: 'dashboard' },
   { id: 'tasks',      label: 'All Tasks',  icon: 'list' },
   { id: 'kanban',     label: 'Kanban',     icon: 'kanban' },
   { id: 'calendar',   label: 'Calendar',   icon: 'calendar' },
+  { id: 'team',       label: 'Team',       icon: 'users' },
   { id: 'categories', label: 'Categories', icon: 'tag' },
 ];
 
@@ -66,7 +68,7 @@ export default function Sidebar({ current, onNavigate, open, onClose }) {
         )}
 
         <div className="sidebar-foot">
-          <p className="foot-note">Saved automatically to this browser</p>
+          <UserMenu />
         </div>
       </aside>
     </>

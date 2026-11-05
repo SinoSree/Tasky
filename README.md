@@ -243,3 +243,111 @@ twice over: the absolute `/src/...` path misses the repository subfolder (a
 404 on Pages, where the site lives at `/Tasky/`), and browsers cannot execute
 raw JSX anyway — it has to be compiled first. The page loaded, the script
 failed, and `<div id="root">` stayed empty: a white screen.
+
+---
+
+## 9. Accounts and task assignment
+
+The app runs in one of two modes, decided entirely by `src/lib/supabaseConfig.js`.
+
+### Demo mode (the default — nothing to set up)
+
+While that file's two values are empty, the sign-in screen just asks for a
+name. Everything saves to this browser. **There is no password and no
+security** — it exists so the app works out of the box and deploys to GitHub
+Pages with no backend.
+
+### Cloud mode (real accounts)
+
+Fill the file in and the same app gains real email + password accounts, email
+confirmation, password reset, and data synced across devices.
+
+**1. Create a project** at <https://supabase.com> (the free tier is enough).
+
+**2. Create the tables.** In the Supabase dashboard open **SQL Editor → New
+query**, paste all of `supabase/schema.sql`, and press Run.
+
+**3. Copy your keys.** Dashboard → **Project Settings → API**, then put them in
+`src/lib/supabaseConfig.js`:
+
+```js
+export const SUPABASE_URL = 'https://abcdefgh.supabase.co';
+export const SUPABASE_ANON_KEY = 'eyJhbGciOi...';
+```
+
+**4. Rebuild and deploy:**
+
+```bash
+cd /Users/sinojd/Claud/task-manager && sh build-standalone.sh && git add -A && git commit -m "Enable cloud accounts" && git push
+```
+
+#### Is it safe to commit the anon key to a public repo?
+
+Yes — with one condition. The anon key is **designed** to be public; it ships
+inside every browser app and cannot be hidden. It grants nothing on its own.
+
+What actually protects your data is **Row Level Security**. Every policy in
+`schema.sql` checks `auth.uid() = user_id`, so the database only ever returns
+or changes rows belonging to the person making the request. That check happens
+in the database, where a user cannot tamper with it.
+
+Two rules follow from this:
+
+- **Never** put the `service_role` key in this file. It bypasses RLS entirely.
+- **Never** disable RLS on these tables. Without it, a public anon key would
+  expose every row to anyone.
+
+### How the two modes share one codebase
+
+`src/lib/repo.js` exposes one interface with two implementations — `localRepo`
+and `cloudRepo`. `TaskContext` calls `repo.tasks.create(...)` and never learns
+which is behind it. Every method is `async` in both, so swapping in a real
+backend did not mean rewriting a single component.
+
+```
+AuthProvider        who is signed in (demo profile or Supabase session)
+  └─ TaskProvider   asks getRepo(user) for the right store
+       └─ Shell     the interface, unchanged either way
+```
+
+### Assigning tasks
+
+- **Team page** — add people with a name and an avatar colour. Removing someone
+  does **not** delete their tasks; those tasks simply become unassigned.
+- **Every task has one assignee** (or none). Set it in the task form.
+- Cards and rows show a coloured initials avatar; unassigned shows a dashed `?`.
+- **Filter by assignee** on All Tasks and the Kanban board, including an
+  "Unassigned" option.
+
+---
+
+## 10. What was tested for this feature
+
+Tested in a real browser against the running app, in demo mode:
+
+- login screen appears when signed out; the chosen name persists
+- first run seeds 6 tasks, 3 members and 5 categories; signing out and back in
+  does **not** re-seed
+- assignee avatars render on cards and rows; unassigned shows the `?` avatar
+- assignee filter: by person, "Unassigned", and back to "All"
+- assigning via the edit form saves and survives a reload
+- Team page: add, duplicate-name rejection, remove-with-confirmation
+- removing a member keeps all 6 tasks and unassigns exactly their tasks
+- sign-out returns to the login screen and does **not** wipe stored tasks
+- Kanban, Calendar and Categories all still work alongside the new data layer
+
+Three bugs were found and fixed during this work:
+
+1. The local store **prepended** new records while the cloud store sorts, so
+   team members came back in reverse order. The local store now appends, and
+   tasks sort newest-first to match the cloud exactly.
+2. The seed data referenced members by hardcoded ids (`m_anita`). Supabase
+   assigns UUIDs, so **every seeded assignment would have silently broken in
+   cloud mode**. Seeding now maps seed ids to whatever ids the store returns.
+3. The local store overwrote any id it was given, which replaced each
+   category's slug (`work`) with a random id and orphaned every task from its
+   category — the badges disappeared. It now keeps a supplied id.
+
+**Not yet tested:** the cloud path itself. It needs a real Supabase project,
+which requires your account. The code is written and reviewed, but until you
+add your keys and run the schema, treat cloud mode as unverified.

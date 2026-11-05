@@ -68,6 +68,11 @@ export function filterTasks(tasks, filters) {
     if (filters.status   && filters.status   !== 'all' && task.status   !== filters.status)   return false;
     if (filters.priority && filters.priority !== 'all' && task.priority !== filters.priority) return false;
     if (filters.category && filters.category !== 'all' && task.category !== filters.category) return false;
+    if (filters.assignee && filters.assignee !== 'all') {
+      // 'none' matches tasks with nobody assigned.
+      if (filters.assignee === 'none') { if (task.assigneeId) return false; }
+      else if (task.assigneeId !== filters.assignee) return false;
+    }
 
     if (query) {
       const haystack = `${task.title} ${task.description || ''}`.toLowerCase();
