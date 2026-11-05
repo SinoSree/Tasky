@@ -2,7 +2,7 @@
 # ---------------------------------------------------------------------------
 # build-standalone.sh
 #
-# Packs everything in src/ into ONE self-contained file: run.html
+# Packs everything in src/ into ONE self-contained file: index.html
 #
 # Why this exists: a normal React project needs Node.js to run `npm run dev`.
 # This script needs only `sed` and `cat`, which every Mac already has, so the
@@ -22,7 +22,7 @@
 set -eu
 cd "$(dirname "$0")"
 
-OUT=run.html
+OUT=index.html
 
 # Order matters: a file must come after anything it relies on at load time.
 FILES="

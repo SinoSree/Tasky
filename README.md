@@ -18,7 +18,7 @@ Your Mac does not currently have Node.js installed, so there are two routes.
 Open this file by double-clicking it:
 
 ```
-/Users/sinojd/Claud/task-manager/run.html
+/Users/sinojd/Claud/task-manager/index.html
 ```
 
 That one file contains the entire app. It loads React from a CDN and compiles
@@ -33,9 +33,9 @@ no tooling at all.
 cd /Users/sinojd/Claud/task-manager && ruby -run -e httpd . -p 8077
 ```
 
-Then open <http://localhost:8077/run.html>.
+Then open <http://localhost:8077/index.html>.
 
-`run.html` is **generated** — never edit it. Edit the files in `src/` and
+`index.html` is **generated** — never edit it. Edit the files in `src/` and
 rebuild:
 
 ```bash
@@ -59,9 +59,9 @@ updates instantly. **The exact same `src/` files power both routes.**
 
 ```
 task-manager/
-├── index.html              # page shell used by Vite (Route B)
-├── run.html                # GENERATED single-file app (Route A) — do not edit
-├── build-standalone.sh     # packs src/ into run.html
+├── index.html              # GENERATED single-file app (Route A) — do not edit
+├── dev.html                # page shell used by Vite (Route B)
+├── build-standalone.sh     # packs src/ into index.html
 ├── package.json            # dependencies + npm scripts (Route B)
 ├── vite.config.js          # Vite configuration (Route B)
 └── src/
@@ -212,3 +212,34 @@ The hook now unwraps lazy initializers, exactly like `useState` does.
 3. Replace `localStorage` with a real backend — only `storage.js` and
    `TaskContext.jsx` would need to change, which is the benefit of keeping
    the data layer in one place.
+
+---
+
+## 8. Deployment
+
+The repo root serves `index.html`, which is the **generated, self-contained
+app** — so GitHub Pages (or Netlify, Vercel, any static host) works with no
+build step and no configuration.
+
+Two files look similar; do not mix them up:
+
+| File | Purpose |
+|---|---|
+| `index.html` | **generated** by `build-standalone.sh`. The whole app in one file. This is what gets deployed. Never edit it by hand. |
+| `dev.html` | the small page shell Vite uses during development. It loads `src/main.jsx`, which only works while Vite is running. |
+
+**After changing anything in `src/`, rebuild before you commit**, or the
+deployed site will still show the old version:
+
+```bash
+cd /Users/sinojd/Claud/task-manager && sh build-standalone.sh && git add -A && git commit -m "Update app" && git push
+```
+
+### Why a white screen happened before
+
+The root `index.html` used to be the Vite shell, containing
+`<script type="module" src="/src/main.jsx">`. On a static host that fails
+twice over: the absolute `/src/...` path misses the repository subfolder (a
+404 on Pages, where the site lives at `/Tasky/`), and browsers cannot execute
+raw JSX anyway — it has to be compiled first. The page loaded, the script
+failed, and `<div id="root">` stayed empty: a white screen.
