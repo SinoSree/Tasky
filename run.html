@@ -1,0 +1,2033 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Taskly — Task Manager</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<style>
+/* ==========================================================================
+   styles.css — all styling for the app.
+
+   Structure:
+   1. Design tokens (the variables)   2. Reset & base
+   3. Layout (sidebar, main, topbar)  4. Components
+   5. Pages                           6. Responsive
+   ========================================================================== */
+
+/* 1. DESIGN TOKENS --------------------------------------------------------
+   Every colour, radius and shadow is a CSS variable. Change the blue in one
+   place here and the whole app follows. */
+:root {
+  --blue-50:#eff6ff; --blue-100:#dbeafe; --blue-200:#bfdbfe;
+  --blue-500:#3b82f6; --blue-600:#2563eb; --blue-700:#1d4ed8;
+
+  --gray-0:#ffffff;  --gray-25:#fcfcfd; --gray-50:#f9fafb; --gray-100:#f3f4f6;
+  --gray-200:#e8eaee; --gray-300:#d6d9e0; --gray-400:#9ca3af;
+  --gray-500:#6b7280; --gray-600:#4b5563; --gray-700:#374151;
+  --gray-800:#1f2937; --gray-900:#111827;
+
+  --green-50:#ecfdf5; --green-500:#10b981; --green-600:#059669; --green-700:#047857;
+  --amber-50:#fffbeb; --amber-500:#f59e0b; --amber-600:#d97706; --amber-700:#b45309;
+  --red-50:#fef2f2;   --red-500:#ef4444;   --red-600:#dc2626;   --red-700:#b91c1c;
+
+  --radius-sm:6px; --radius:10px; --radius-lg:14px; --radius-xl:18px;
+
+  --shadow-xs:0 1px 2px rgba(16,24,40,.05);
+  --shadow-sm:0 1px 3px rgba(16,24,40,.07), 0 1px 2px rgba(16,24,40,.04);
+  --shadow-md:0 4px 12px rgba(16,24,40,.07), 0 2px 4px rgba(16,24,40,.04);
+  --shadow-lg:0 12px 32px rgba(16,24,40,.12), 0 4px 10px rgba(16,24,40,.06);
+  --ring:0 0 0 3px rgba(37,99,235,.16);
+
+  --sidebar-w:252px;
+  --font: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+}
+
+/* 2. RESET & BASE --------------------------------------------------------- */
+*, *::before, *::after { box-sizing: border-box; }
+html, body, #root { height: 100%; }
+body {
+  margin: 0;
+  font-family: var(--font);
+  font-size: 14px;
+  line-height: 1.55;
+  color: var(--gray-700);
+  background: var(--gray-0);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+h1,h2,h3,h4,p { margin: 0; }
+button { font-family: inherit; font-size: inherit; cursor: pointer; }
+:focus-visible { outline: none; box-shadow: var(--ring); border-radius: var(--radius-sm); }
+.icon { flex-shrink: 0; }
+
+/* 3. LAYOUT --------------------------------------------------------------- */
+.app { display: flex; min-height: 100vh; background: var(--gray-0); }
+
+/* --- Sidebar --- */
+.sidebar {
+  width: var(--sidebar-w); flex-shrink: 0;
+  display: flex; flex-direction: column;
+  padding: 22px 16px;
+  background: var(--gray-25);
+  border-right: 1px solid var(--gray-200);
+  position: sticky; top: 0; height: 100vh;
+  z-index: 40;
+}
+.brand { display: flex; align-items: center; gap: 11px; padding: 0 8px 22px; }
+.brand-mark {
+  width: 34px; height: 34px; border-radius: var(--radius);
+  background: linear-gradient(135deg, var(--blue-500), var(--blue-700));
+  color: #fff; font-weight: 700; font-size: 16px;
+  display: grid; place-items: center;
+  box-shadow: 0 2px 8px rgba(37,99,235,.3);
+}
+.brand-name { font-size: 15px; font-weight: 650; color: var(--gray-900); letter-spacing: -.01em; }
+.brand-sub { font-size: 11.5px; color: var(--gray-400); }
+
+.nav { display: flex; flex-direction: column; gap: 2px; }
+.nav-section {
+  font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: .06em;
+  color: var(--gray-400); padding: 0 10px 8px;
+}
+.nav-item {
+  display: flex; align-items: center; gap: 11px;
+  width: 100%; padding: 9px 11px;
+  border: none; background: transparent; border-radius: var(--radius);
+  color: var(--gray-600); font-size: 13.5px; font-weight: 500;
+  text-align: left; transition: background .14s, color .14s;
+}
+.nav-item:hover { background: var(--gray-100); color: var(--gray-900); }
+.nav-item.is-active { background: var(--blue-50); color: var(--blue-700); font-weight: 600; }
+.nav-item.is-active .icon { color: var(--blue-600); }
+.nav-count {
+  margin-left: auto; min-width: 20px; padding: 1px 6px;
+  background: var(--gray-200); color: var(--gray-600);
+  border-radius: 20px; font-size: 11px; font-weight: 600; text-align: center;
+}
+.nav-item.is-active .nav-count { background: var(--blue-100); color: var(--blue-700); }
+
+.sidebar-alert {
+  display: flex; gap: 10px; align-items: flex-start;
+  margin-top: 18px; padding: 11px 12px;
+  background: var(--red-50); border: 1px solid #fecaca;
+  border-radius: var(--radius); color: var(--red-700);
+}
+.sidebar-alert-title { font-size: 12.5px; font-weight: 650; }
+.sidebar-alert-sub { font-size: 11.5px; color: var(--red-600); opacity: .85; }
+
+.sidebar-foot { margin-top: auto; padding: 14px 10px 0; border-top: 1px solid var(--gray-200); }
+.foot-note { font-size: 11.5px; color: var(--gray-400); }
+
+.sidebar-backdrop { display: none; }
+
+/* --- Main column --- */
+.main { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+
+.topbar {
+  display: flex; align-items: center; gap: 16px;
+  padding: 18px 32px; border-bottom: 1px solid var(--gray-200);
+  background: rgba(255,255,255,.85); backdrop-filter: blur(8px);
+  position: sticky; top: 0; z-index: 30;
+}
+.topbar-text { flex: 1; min-width: 0; }
+.page-title { font-size: 19px; font-weight: 650; color: var(--gray-900); letter-spacing: -.02em; }
+.page-subtitle { font-size: 13px; color: var(--gray-500); }
+.menu-btn { display: none; }
+
+.page { padding: 26px 32px 56px; display: flex; flex-direction: column; gap: 22px; }
+
+/* 4. COMPONENTS ----------------------------------------------------------- */
+
+/* --- Buttons --- */
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 7px;
+  border-radius: var(--radius); border: 1px solid transparent;
+  font-weight: 560; letter-spacing: -.005em; white-space: nowrap;
+  transition: background .14s, border-color .14s, color .14s, box-shadow .14s, transform .08s;
+}
+.btn:active { transform: translateY(.5px); }
+.btn-md { padding: 8px 14px; font-size: 13.5px; }
+.btn-sm { padding: 6px 11px; font-size: 12.5px; }
+.btn-icon-only { padding: 8px; }
+
+.btn-primary   { background: var(--blue-600); color: #fff; box-shadow: var(--shadow-xs); }
+.btn-primary:hover { background: var(--blue-700); }
+.btn-secondary { background: #fff; color: var(--gray-700); border-color: var(--gray-300); box-shadow: var(--shadow-xs); }
+.btn-secondary:hover { background: var(--gray-50); border-color: var(--gray-400); }
+.btn-ghost     { background: transparent; color: var(--gray-600); }
+.btn-ghost:hover { background: var(--gray-100); color: var(--gray-900); }
+.btn-danger    { background: var(--red-600); color: #fff; }
+.btn-danger:hover { background: var(--red-700); }
+
+.icon-btn {
+  display: inline-grid; place-items: center;
+  width: 30px; height: 30px; padding: 0;
+  border: none; background: transparent; border-radius: var(--radius-sm);
+  color: var(--gray-500); transition: background .14s, color .14s;
+}
+.icon-btn:hover { background: var(--gray-100); color: var(--gray-900); }
+.icon-btn-danger:hover { background: var(--red-50); color: var(--red-600); }
+
+/* --- Inputs --- */
+.input {
+  width: 100%; padding: 8.5px 11px;
+  font-family: inherit; font-size: 13.5px; color: var(--gray-900);
+  background: #fff; border: 1px solid var(--gray-300); border-radius: var(--radius);
+  box-shadow: var(--shadow-xs);
+  transition: border-color .14s, box-shadow .14s;
+}
+.input::placeholder { color: var(--gray-400); }
+.input:focus { outline: none; border-color: var(--blue-500); box-shadow: var(--ring); }
+.input-error { border-color: var(--red-500); }
+.textarea { resize: vertical; min-height: 72px; line-height: 1.5; }
+.select {
+  appearance: none; cursor: pointer; padding-right: 30px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%236b7280' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat; background-position: right 10px center;
+}
+.select-sm { width: auto; padding: 6.5px 28px 6.5px 10px; font-size: 12.5px; }
+
+.field { display: flex; flex-direction: column; gap: 6px; flex: 1; min-width: 0; }
+.field-row { display: flex; gap: 12px; }
+.field-label { font-size: 12.5px; font-weight: 600; color: var(--gray-700); }
+.field-hint { font-weight: 400; color: var(--gray-400); }
+.field-error { font-size: 12px; color: var(--red-600); }
+.task-form { display: flex; flex-direction: column; gap: 14px; }
+.form-actions { display: flex; justify-content: flex-end; gap: 8px; padding-top: 4px; }
+
+/* --- Badges --- */
+.badge {
+  display: inline-flex; align-items: center; gap: 5px;
+  padding: 2px 8px; border-radius: 20px;
+  font-size: 11.5px; font-weight: 600; letter-spacing: -.005em; white-space: nowrap;
+}
+.badge-dot { width: 6px; height: 6px; border-radius: 50%; }
+.badge-low    { background: var(--gray-100); color: var(--gray-600); }
+.badge-medium { background: var(--amber-50); color: var(--amber-700); }
+.badge-high   { background: var(--red-50);   color: var(--red-700); }
+.badge-todo        { background: var(--gray-100); color: var(--gray-600); }
+.badge-in-progress { background: var(--blue-50);  color: var(--blue-700); }
+.badge-done        { background: var(--green-50); color: var(--green-700); }
+
+.due-chip {
+  display: inline-flex; align-items: center; gap: 5px;
+  font-size: 11.5px; font-weight: 500; color: var(--gray-500);
+}
+.due-chip.is-overdue { color: var(--red-600); font-weight: 600; }
+
+/* --- Modal --- */
+.modal-overlay {
+  position: fixed; inset: 0; z-index: 100;
+  background: rgba(17,24,39,.42); backdrop-filter: blur(3px);
+  display: flex; align-items: flex-start; justify-content: center;
+  padding: 7vh 16px 16px; overflow-y: auto;
+  animation: fade .16s ease-out;
+}
+.modal-panel {
+  width: 100%; background: #fff;
+  border-radius: var(--radius-xl); box-shadow: var(--shadow-lg);
+  animation: rise .2s cubic-bezier(.2,.8,.3,1);
+}
+@keyframes fade { from { opacity: 0 } }
+@keyframes rise { from { opacity: 0; transform: translateY(10px) scale(.985) } }
+.modal-head {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 18px 20px 14px; border-bottom: 1px solid var(--gray-200);
+}
+.modal-title { font-size: 16px; font-weight: 650; color: var(--gray-900); letter-spacing: -.015em; }
+.modal-body { padding: 18px 20px 20px; }
+.confirm-message { font-size: 13.5px; color: var(--gray-600); margin-bottom: 18px; }
+
+/* --- Panels --- */
+.panel {
+  background: #fff; border: 1px solid var(--gray-200);
+  border-radius: var(--radius-lg); padding: 18px; box-shadow: var(--shadow-xs);
+}
+.panel-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; gap: 12px; }
+.panel-title { font-size: 14.5px; font-weight: 650; color: var(--gray-900); letter-spacing: -.01em; }
+.panel-meta { font-size: 12.5px; color: var(--gray-500); }
+
+/* --- Empty state --- */
+.empty-state {
+  display: flex; flex-direction: column; align-items: center; gap: 8px;
+  padding: 36px 20px; text-align: center;
+}
+.empty-icon {
+  width: 44px; height: 44px; border-radius: 50%;
+  background: var(--gray-100); color: var(--gray-400);
+  display: grid; place-items: center; margin-bottom: 4px;
+}
+.empty-title { font-size: 14px; font-weight: 600; color: var(--gray-800); }
+.empty-message { font-size: 13px; color: var(--gray-500); max-width: 280px; margin-bottom: 6px; }
+
+/* --- Check circle --- */
+.check-circle {
+  flex-shrink: 0; width: 18px; height: 18px; margin-top: 1px;
+  display: grid; place-items: center;
+  border: 1.8px solid var(--gray-300); border-radius: 50%;
+  background: #fff; color: #fff; padding: 0;
+  transition: border-color .14s, background .14s;
+}
+.check-circle:hover { border-color: var(--blue-500); }
+.check-circle.checked { background: var(--green-600); border-color: var(--green-600); }
+
+/* --- Task card --- */
+.task-card {
+  background: #fff; border: 1px solid var(--gray-200); border-radius: var(--radius);
+  padding: 12px 13px; display: flex; flex-direction: column; gap: 8px;
+  box-shadow: var(--shadow-xs); transition: box-shadow .16s, border-color .16s, transform .16s;
+}
+.task-card:hover { box-shadow: var(--shadow-md); border-color: var(--gray-300); }
+.task-card[draggable="true"] { cursor: grab; }
+.task-card[draggable="true"]:active { cursor: grabbing; }
+.task-card.is-done .task-card-title { text-decoration: line-through; color: var(--gray-400); }
+.task-card-top { display: flex; align-items: flex-start; gap: 9px; }
+.task-card-title {
+  flex: 1; font-size: 13.5px; font-weight: 600; color: var(--gray-900);
+  line-height: 1.4; letter-spacing: -.01em; word-break: break-word;
+}
+.task-card-actions { display: flex; gap: 1px; opacity: 0; transition: opacity .14s; }
+.task-card:hover .task-card-actions,
+.task-card:focus-within .task-card-actions { opacity: 1; }
+.task-card-desc {
+  font-size: 12.5px; color: var(--gray-500); padding-left: 27px;
+  display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+}
+.task-card-meta { display: flex; flex-wrap: wrap; align-items: center; gap: 7px; padding-left: 27px; }
+.card-stack { display: flex; flex-direction: column; gap: 9px; }
+
+/* --- Task row (list view) --- */
+.task-list {
+  display: flex; flex-direction: column;
+  border: 1px solid var(--gray-200); border-radius: var(--radius-lg);
+  overflow: hidden; background: #fff; box-shadow: var(--shadow-xs);
+}
+.task-row {
+  display: flex; align-items: center; gap: 13px;
+  padding: 13px 16px; border-bottom: 1px solid var(--gray-100);
+  transition: background .12s;
+}
+.task-row:last-child { border-bottom: none; }
+.task-row:hover { background: var(--gray-25); }
+.task-row.is-done .task-row-title { text-decoration: line-through; color: var(--gray-400); }
+.task-row-main { flex: 1; min-width: 0; }
+.task-row-title { font-size: 13.5px; font-weight: 550; color: var(--gray-900); letter-spacing: -.01em; }
+.task-row-desc {
+  font-size: 12.5px; color: var(--gray-500);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.task-row-badges { display: flex; align-items: center; gap: 6px; flex-shrink: 0; }
+.task-row-due { font-size: 12px; color: var(--gray-500); width: 128px; text-align: right; flex-shrink: 0; }
+.task-row-due.is-overdue { color: var(--red-600); font-weight: 600; }
+.task-row-actions { display: flex; gap: 1px; flex-shrink: 0; opacity: 0; transition: opacity .14s; }
+.task-row:hover .task-row-actions,
+.task-row:focus-within .task-row-actions { opacity: 1; }
+.list-toolbar { display: flex; justify-content: flex-end; margin: -8px 0 -6px; }
+
+/* --- Filter bar --- */
+.filter-bar { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.search-box { position: relative; flex: 1; min-width: 200px; max-width: 340px; }
+.search-icon { position: absolute; left: 11px; top: 50%; transform: translateY(-50%); color: var(--gray-400); pointer-events: none; }
+.search-input {
+  width: 100%; padding: 8.5px 11px 8.5px 34px;
+  font-family: inherit; font-size: 13.5px; color: var(--gray-900);
+  background: #fff; border: 1px solid var(--gray-300); border-radius: var(--radius);
+  box-shadow: var(--shadow-xs); transition: border-color .14s, box-shadow .14s;
+}
+.search-input::placeholder { color: var(--gray-400); }
+.search-input:focus { outline: none; border-color: var(--blue-500); box-shadow: var(--ring); }
+.filter-selects { display: flex; gap: 8px; flex-wrap: wrap; }
+.result-count { margin-left: auto; font-size: 12.5px; color: var(--gray-500); white-space: nowrap; }
+
+/* 5. PAGES ---------------------------------------------------------------- */
+
+/* --- Dashboard --- */
+.stat-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }
+.stat-card {
+  display: flex; align-items: flex-start; gap: 13px;
+  background: #fff; border: 1px solid var(--gray-200); border-radius: var(--radius-lg);
+  padding: 17px; box-shadow: var(--shadow-xs); transition: box-shadow .16s, transform .16s;
+}
+.stat-card:hover { box-shadow: var(--shadow-md); transform: translateY(-1px); }
+.stat-icon { width: 36px; height: 36px; border-radius: var(--radius); display: grid; place-items: center; }
+.tone-blue  { background: var(--blue-50);  color: var(--blue-600); }
+.tone-green { background: var(--green-50); color: var(--green-600); }
+.tone-amber { background: var(--amber-50); color: var(--amber-600); }
+.tone-red   { background: var(--red-50);   color: var(--red-600); }
+.stat-value { font-size: 25px; font-weight: 680; color: var(--gray-900); line-height: 1.1; letter-spacing: -.03em; }
+.stat-label { font-size: 12.5px; color: var(--gray-500); font-weight: 500; }
+.stat-hint  { font-size: 11.5px; color: var(--gray-400); margin-top: 2px; }
+
+.progress-track {
+  display: flex; gap: 3px; height: 9px; border-radius: 20px; overflow: hidden;
+  background: var(--gray-100); margin-bottom: 13px;
+}
+.progress-seg { height: 100%; border-radius: 20px; transition: width .35s ease; }
+.seg-todo        { background: var(--gray-300); }
+.seg-in-progress { background: var(--blue-500); }
+.seg-done        { background: var(--green-500); }
+.seg-empty       { background: var(--gray-100); }
+.progress-legend { display: flex; flex-wrap: wrap; gap: 16px; }
+.legend-item { display: inline-flex; align-items: center; gap: 6px; font-size: 12.5px; color: var(--gray-500); }
+.legend-item strong { color: var(--gray-900); font-weight: 650; }
+.legend-dot { width: 8px; height: 8px; border-radius: 50%; }
+.legend-high { color: var(--red-600); margin-left: auto; }
+
+.dash-columns { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; align-items: start; }
+
+/* --- Kanban --- */
+.kanban { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; align-items: start; }
+.kanban-col {
+  background: var(--gray-50); border: 1px solid var(--gray-200);
+  border-radius: var(--radius-lg); padding: 13px;
+  display: flex; flex-direction: column; gap: 11px;
+  min-height: 220px; transition: background .16s, border-color .16s;
+}
+.kanban-col.is-dragover { background: var(--blue-50); border-color: var(--blue-200); }
+.kanban-head { display: flex; align-items: center; gap: 8px; }
+.kanban-dot { width: 8px; height: 8px; border-radius: 50%; }
+.kanban-title { font-size: 13px; font-weight: 650; color: var(--gray-800); letter-spacing: -.01em; }
+.kanban-count {
+  margin-left: auto; min-width: 20px; padding: 1px 7px;
+  background: #fff; border: 1px solid var(--gray-200); border-radius: 20px;
+  font-size: 11.5px; font-weight: 600; color: var(--gray-500); text-align: center;
+}
+.kanban-body { display: flex; flex-direction: column; gap: 9px; }
+.kanban-item { display: flex; flex-direction: column; }
+.kanban-empty {
+  padding: 24px 12px; text-align: center; font-size: 12.5px; color: var(--gray-400);
+  border: 1.5px dashed var(--gray-300); border-radius: var(--radius);
+}
+.move-row { display: flex; flex-wrap: wrap; gap: 6px; padding: 6px 2px 0; opacity: 0; max-height: 0; overflow: hidden; transition: opacity .15s, max-height .15s; }
+.kanban-item:hover .move-row, .kanban-item:focus-within .move-row { opacity: 1; max-height: 60px; }
+.move-btn {
+  padding: 3px 8px; font-size: 11px; font-weight: 550;
+  background: #fff; color: var(--gray-500);
+  border: 1px solid var(--gray-200); border-radius: 20px; transition: all .14s;
+}
+.move-btn:hover { color: var(--blue-700); border-color: var(--blue-200); background: var(--blue-50); }
+.kanban-add { align-self: flex-start; }
+
+/* --- Calendar --- */
+.cal-toolbar { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.cal-nav { display: flex; align-items: center; gap: 6px; }
+.cal-month { font-size: 15.5px; font-weight: 650; color: var(--gray-900); min-width: 165px; text-align: center; letter-spacing: -.015em; }
+.cal-layout { display: grid; grid-template-columns: minmax(0,1fr) 320px; gap: 18px; align-items: start; }
+.cal-panel { padding: 14px; }
+.cal-weekdays { display: grid; grid-template-columns: repeat(7, 1fr); gap: 5px; margin-bottom: 6px; }
+.cal-weekday { font-size: 11px; font-weight: 650; color: var(--gray-400); text-align: center; text-transform: uppercase; letter-spacing: .05em; }
+.cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 5px; }
+.cal-cell {
+  display: flex; flex-direction: column; align-items: center; gap: 5px;
+  min-height: 62px; padding: 7px 4px;
+  background: #fff; border: 1px solid var(--gray-200); border-radius: var(--radius-sm);
+  transition: background .13s, border-color .13s;
+}
+.cal-cell:hover { background: var(--gray-50); border-color: var(--gray-300); }
+.cal-cell.is-outside { background: var(--gray-25); }
+.cal-cell.is-outside .cal-daynum { color: var(--gray-300); }
+.cal-cell.is-today .cal-daynum {
+  background: var(--blue-600); color: #fff;
+  width: 21px; height: 21px; border-radius: 50%; display: grid; place-items: center;
+}
+.cal-cell.is-selected { border-color: var(--blue-500); box-shadow: var(--ring); background: var(--blue-50); }
+.cal-daynum { font-size: 12.5px; font-weight: 600; color: var(--gray-700); }
+.cal-dots { display: flex; flex-wrap: wrap; gap: 3px; justify-content: center; align-items: center; }
+.cal-dot { width: 6px; height: 6px; border-radius: 50%; }
+.dot-low { background: var(--gray-400); } .dot-medium { background: var(--amber-500); } .dot-high { background: var(--red-500); }
+.cal-dot.is-done { background: var(--green-500); }
+.cal-more { font-size: 9.5px; font-weight: 650; color: var(--gray-400); }
+.cal-side { position: sticky; top: 90px; }
+.cal-undated { margin-top: 14px; padding-top: 12px; border-top: 1px solid var(--gray-200); }
+.cal-undated-title { font-size: 12px; color: var(--gray-400); }
+
+/* --- Categories --- */
+.cat-form { display: flex; align-items: flex-start; gap: 12px; flex-wrap: wrap; }
+.cat-field { max-width: 300px; }
+.swatches { display: flex; gap: 6px; padding-top: 2px; }
+.swatch {
+  width: 26px; height: 26px; border-radius: 50%;
+  border: 2px solid transparent; box-shadow: 0 0 0 1px var(--gray-200); padding: 0;
+  transition: transform .14s, box-shadow .14s;
+}
+.swatch:hover { transform: scale(1.1); }
+.swatch.is-active { border-color: #fff; box-shadow: 0 0 0 2px var(--gray-900); }
+.cat-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(214px, 1fr)); gap: 11px; }
+.cat-card {
+  display: flex; align-items: center; gap: 11px;
+  padding: 13px; background: #fff;
+  border: 1px solid var(--gray-200); border-radius: var(--radius);
+  box-shadow: var(--shadow-xs); transition: box-shadow .16s;
+}
+.cat-card:hover { box-shadow: var(--shadow-md); }
+.cat-dot { width: 11px; height: 11px; border-radius: 50%; flex-shrink: 0; }
+.cat-body { flex: 1; min-width: 0; }
+.cat-name { font-size: 13.5px; font-weight: 600; color: var(--gray-900); }
+.cat-count { font-size: 12px; color: var(--gray-500); }
+
+/* 6. RESPONSIVE ----------------------------------------------------------- */
+@media (max-width: 1100px) {
+  .stat-grid { grid-template-columns: repeat(2, 1fr); }
+  .dash-columns { grid-template-columns: 1fr; }
+  .cal-layout { grid-template-columns: 1fr; }
+  .cal-side { position: static; }
+  .task-row-badges .badge-status { display: none; }
+}
+
+@media (max-width: 860px) {
+  .kanban { grid-template-columns: 1fr; }
+  .task-row-due { display: none; }
+  .task-row-badges .badge-category { display: none; }
+}
+
+@media (max-width: 760px) {
+  /* Sidebar becomes a slide-in drawer. */
+  .sidebar {
+    position: fixed; top: 0; left: 0; height: 100vh;
+    transform: translateX(-100%); transition: transform .24s cubic-bezier(.2,.8,.3,1);
+    box-shadow: var(--shadow-lg); background: #fff;
+  }
+  .sidebar.is-open { transform: translateX(0); }
+  .sidebar-backdrop { display: block; position: fixed; inset: 0; z-index: 39; background: rgba(17,24,39,.4); }
+  .menu-btn { display: inline-grid; }
+  .topbar { padding: 14px 18px; }
+  .page { padding: 18px 18px 48px; }
+  .page-subtitle { display: none; }
+  .stat-grid { gap: 10px; }
+  .filter-bar { gap: 8px; }
+  .search-box { max-width: none; flex-basis: 100%; }
+  .result-count { margin-left: 0; }
+  .task-card-actions, .task-row-actions { opacity: 1; }
+  .move-row { opacity: 1; max-height: 60px; }
+  .cal-cell { min-height: 50px; padding: 5px 2px; }
+  .modal-overlay { padding: 3vh 12px 12px; }
+  .field-row { flex-direction: column; gap: 14px; }
+}
+
+@media (max-width: 440px) {
+  .stat-grid { grid-template-columns: 1fr; }
+  .cat-grid { grid-template-columns: 1fr; }
+  .btn-md { padding: 8px 11px; }
+}
+</style>
+</head>
+<body>
+<div id="root"></div>
+
+<script src="https://unpkg.com/react@18.3.1/umd/react.production.min.js" crossorigin></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.production.min.js" crossorigin></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.26.4/babel.min.js" crossorigin></script>
+
+<script type="text/babel" data-presets="react">
+// Generated by build-standalone.sh — edit the files in src/, never this file.
+const { useState, useEffect, useRef, useMemo, useCallback, createContext, useContext } = React;
+const { createRoot } = ReactDOM;
+
+/* ===== src/lib/constants.js ===== */
+// ---------------------------------------------------------------------------
+// constants.js
+// A single place for every "fixed" value the app uses.
+// Keeping these here means a label or colour is changed in ONE place only.
+// ---------------------------------------------------------------------------
+
+// The three columns of the Kanban board / the three task states.
+const STATUSES = [
+  { id: 'todo',        label: 'To Do' },
+  { id: 'in-progress', label: 'In Progress' },
+  { id: 'done',        label: 'Completed' },
+];
+
+// Priority levels, lowest first. `rank` is used for sorting.
+const PRIORITIES = [
+  { id: 'low',    label: 'Low',    rank: 1 },
+  { id: 'medium', label: 'Medium', rank: 2 },
+  { id: 'high',   label: 'High',   rank: 3 },
+];
+
+// Categories the user can tag a task with.
+const DEFAULT_CATEGORIES = [
+  { id: 'work',     label: 'Work',     color: '#2563eb' },
+  { id: 'personal', label: 'Personal', color: '#7c3aed' },
+  { id: 'design',   label: 'Design',   color: '#db2777' },
+  { id: 'urgent',   label: 'Urgent',   color: '#dc2626' },
+  { id: 'learning', label: 'Learning', color: '#059669' },
+];
+
+// The keys used inside the browser's localStorage.
+const STORAGE_KEYS = {
+  tasks: 'tm.tasks.v1',
+  categories: 'tm.categories.v1',
+};
+
+// Small helper: look up a status/priority/category object by its id.
+const findById = (list, id) => list.find((item) => item.id === id);
+
+/* ===== src/lib/storage.js ===== */
+// ---------------------------------------------------------------------------
+// storage.js
+// Thin wrapper around window.localStorage.
+//
+// Why wrap it? localStorage THROWS in some browsers (private mode, blocked
+// cookies). If we called it directly all over the app, one throw would take
+// the whole UI down. Here we catch it once and fall back to a default value.
+// ---------------------------------------------------------------------------
+
+function loadJSON(key, fallback) {
+  try {
+    const raw = window.localStorage.getItem(key);
+    if (raw === null) return fallback;      // nothing saved yet
+    const parsed = JSON.parse(raw);
+    return parsed ?? fallback;
+  } catch (err) {
+    console.warn('[storage] could not read', key, err);
+    return fallback;
+  }
+}
+
+function saveJSON(key, value) {
+  try {
+    window.localStorage.setItem(key, JSON.stringify(value));
+    return true;
+  } catch (err) {
+    console.warn('[storage] could not write', key, err);
+    return false;                            // quota full or storage blocked
+  }
+}
+
+/* ===== src/lib/taskUtils.js ===== */
+// ---------------------------------------------------------------------------
+// taskUtils.js
+// PURE functions only: give them input, they return output, they never touch
+// React state or the DOM. That makes them predictable and easy to test.
+// ---------------------------------------------------------------------------
+
+// Generate a unique id for a new task.
+function createId() {
+  return 't_' + Date.now().toString(36) + '_' + Math.random().toString(36).slice(2, 8);
+}
+
+// --- date helpers ----------------------------------------------------------
+
+// Today at 00:00 local time. Used so "overdue" ignores the clock time.
+function startOfToday() {
+  const d = new Date();
+  d.setHours(0, 0, 0, 0);
+  return d;
+}
+
+// Turn "2026-11-05" into a local Date at midnight.
+// NOTE: new Date("2026-11-05") parses as UTC and can shift a day in some
+// timezones, so we split the string ourselves.
+function parseDateInput(value) {
+  if (!value) return null;
+  const [y, m, d] = value.split('-').map(Number);
+  if (!y || !m || !d) return null;
+  return new Date(y, m - 1, d);
+}
+
+// Turn a Date back into the "YYYY-MM-DD" format an <input type="date"> wants.
+function toDateInput(date) {
+  if (!date) return '';
+  const pad = (n) => String(n).padStart(2, '0');
+  return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`;
+}
+
+// Friendly label: "Today", "Tomorrow", "Overdue by 3 days", or "12 Nov 2026".
+function formatDueDate(value) {
+  const date = parseDateInput(value);
+  if (!date) return 'No due date';
+  const today = startOfToday();
+  const diffDays = Math.round((date - today) / 86400000);
+  if (diffDays === 0) return 'Due today';
+  if (diffDays === 1) return 'Due tomorrow';
+  if (diffDays === -1) return 'Due yesterday';
+  if (diffDays < 0) return `Overdue by ${Math.abs(diffDays)} days`;
+  if (diffDays <= 7) return `Due in ${diffDays} days`;
+  return date.toLocaleDateString(undefined, { day: 'numeric', month: 'short', year: 'numeric' });
+}
+
+// A task is overdue when it has a past due date AND is not completed.
+function isOverdue(task) {
+  if (!task.dueDate || task.status === 'done') return false;
+  const date = parseDateInput(task.dueDate);
+  return date !== null && date < startOfToday();
+}
+
+// --- searching, filtering, sorting -----------------------------------------
+
+// `filters` looks like: { search, status, priority, category }
+// A value of 'all' (or an empty search) means "do not filter on this".
+function filterTasks(tasks, filters) {
+  const query = (filters.search || '').trim().toLowerCase();
+
+  return tasks.filter((task) => {
+    if (filters.status   && filters.status   !== 'all' && task.status   !== filters.status)   return false;
+    if (filters.priority && filters.priority !== 'all' && task.priority !== filters.priority) return false;
+    if (filters.category && filters.category !== 'all' && task.category !== filters.category) return false;
+
+    if (query) {
+      const haystack = `${task.title} ${task.description || ''}`.toLowerCase();
+      if (!haystack.includes(query)) return false;
+    }
+    return true;
+  });
+}
+
+function sortTasks(tasks, sortBy) {
+  // Copy first — .sort() mutates, and mutating React state is a bug.
+  const copy = [...tasks];
+
+  const priorityRank = (t) => (findById(PRIORITIES, t.priority)?.rank ?? 0);
+  // Tasks with no due date sort last.
+  const dueValue = (t) => (t.dueDate ? parseDateInput(t.dueDate).getTime() : Infinity);
+
+  switch (sortBy) {
+    case 'priority': return copy.sort((a, b) => priorityRank(b) - priorityRank(a));
+    case 'dueDate':  return copy.sort((a, b) => dueValue(a) - dueValue(b));
+    case 'title':    return copy.sort((a, b) => a.title.localeCompare(b.title));
+    case 'oldest':   return copy.sort((a, b) => a.createdAt - b.createdAt);
+    case 'newest':
+    default:         return copy.sort((a, b) => b.createdAt - a.createdAt);
+  }
+}
+
+// --- statistics for the dashboard ------------------------------------------
+
+function getStats(tasks) {
+  const total     = tasks.length;
+  const done      = tasks.filter((t) => t.status === 'done').length;
+  const progress  = tasks.filter((t) => t.status === 'in-progress').length;
+  const todo      = tasks.filter((t) => t.status === 'todo').length;
+  const overdue   = tasks.filter(isOverdue).length;
+  const highPrio  = tasks.filter((t) => t.priority === 'high' && t.status !== 'done').length;
+  const dueToday  = tasks.filter(
+    (t) => t.status !== 'done' && t.dueDate === toDateInput(startOfToday())
+  ).length;
+
+  return {
+    total, done, progress, todo, overdue, highPrio, dueToday,
+    // Guard against dividing by zero when there are no tasks at all.
+    completionRate: total === 0 ? 0 : Math.round((done / total) * 100),
+  };
+}
+
+// --- calendar helpers ------------------------------------------------------
+
+// Build the 6x7 grid a month view needs, including the greyed-out days that
+// spill in from the previous and next month.
+function buildMonthGrid(year, month) {
+  const firstOfMonth = new Date(year, month, 1);
+  // getDay(): 0 = Sunday. We want weeks to start on Monday, so shift it.
+  const leading = (firstOfMonth.getDay() + 6) % 7;
+
+  const cells = [];
+  const cursor = new Date(year, month, 1 - leading);
+  for (let i = 0; i < 42; i++) {
+    cells.push({
+      date: new Date(cursor),
+      inMonth: cursor.getMonth() === month,
+    });
+    cursor.setDate(cursor.getDate() + 1);
+  }
+  return cells;
+}
+
+/* ===== src/hooks/useLocalStorage.js ===== */
+// ---------------------------------------------------------------------------
+// useLocalStorage.js  — a custom React hook.
+//
+// A "hook" is just a function starting with `use` that can call other hooks.
+// This one is a drop-in replacement for useState that ALSO saves to
+// localStorage, so the value survives a page refresh.
+//
+//   const [tasks, setTasks] = useLocalStorage('tm.tasks.v1', []);
+//
+// Like useState, `initialValue` may be a FUNCTION. That form is useful when
+// building the default is expensive (e.g. generating sample tasks) because
+// the function only runs when there is nothing saved yet.
+// ---------------------------------------------------------------------------
+
+function useLocalStorage(key, initialValue) {
+  // The function form of useState runs ONLY on the first render, so we don't
+  // re-read localStorage on every single render.
+  const [value, setValue] = useState(() => {
+    // Unwrap a lazy initializer. Without this, passing `seedTasks` would
+    // store the FUNCTION itself as the state, and `tasks.filter(...)` would
+    // blow up with "tasks.filter is not a function".
+    const fallback = typeof initialValue === 'function' ? initialValue() : initialValue;
+    return loadJSON(key, fallback);
+  });
+
+  // Skip the very first save: we just loaded this value, writing it back
+  // immediately would be pointless work.
+  const isFirstRun = useRef(true);
+
+  useEffect(() => {
+    if (isFirstRun.current) {
+      isFirstRun.current = false;
+      return;
+    }
+    saveJSON(key, value);
+  }, [key, value]);
+
+  return [value, setValue];
+}
+
+/* ===== src/context/TaskContext.jsx ===== */
+// ---------------------------------------------------------------------------
+// TaskContext.jsx
+//
+// React Context = a way to share data with every component in the tree
+// without "prop drilling" (passing props down through components that don't
+// care about them).
+//
+// Anything a component needs — the task list, addTask, deleteTask… — lives
+// here. A component gets it with:   const { tasks, addTask } = useTasks();
+// ---------------------------------------------------------------------------
+
+const TaskContext = createContext(null);
+
+// A few tasks so a brand-new user does not stare at an empty screen.
+function seedTasks() {
+  const today = startOfToday();
+  const dayOffset = (n) => {
+    const d = new Date(today);
+    d.setDate(d.getDate() + n);
+    return toDateInput(d);
+  };
+  const base = Date.now();
+  return [
+    { id: createId(), title: 'Design the new onboarding flow', description: 'Wireframes for the 3-step signup.', status: 'in-progress', priority: 'high',   category: 'design',   dueDate: dayOffset(1),  createdAt: base - 5000, updatedAt: base - 5000 },
+    { id: createId(), title: 'Review Q4 analytics report',     description: 'Check retention and churn numbers.', status: 'todo',        priority: 'medium', category: 'work',     dueDate: dayOffset(4),  createdAt: base - 4000, updatedAt: base - 4000 },
+    { id: createId(), title: 'Fix login validation bug',       description: 'Email field accepts invalid formats.', status: 'todo',      priority: 'high',   category: 'urgent',   dueDate: dayOffset(-2), createdAt: base - 3000, updatedAt: base - 3000 },
+    { id: createId(), title: 'Read React performance guide',   description: 'Focus on memo and useCallback.',     status: 'todo',        priority: 'low',    category: 'learning', dueDate: dayOffset(9),  createdAt: base - 2000, updatedAt: base - 2000 },
+    { id: createId(), title: 'Book dentist appointment',       description: '',                                   status: 'done',        priority: 'low',    category: 'personal', dueDate: dayOffset(-5), createdAt: base - 1000, updatedAt: base - 1000 },
+    { id: createId(), title: 'Prepare sprint demo',            description: 'Slides + live walkthrough.',         status: 'in-progress', priority: 'medium', category: 'work',     dueDate: dayOffset(0),  createdAt: base - 500,  updatedAt: base - 500  },
+  ];
+}
+
+function TaskProvider({ children }) {
+  const [tasks, setTasks] = useLocalStorage(STORAGE_KEYS.tasks, seedTasks);
+  const [categories, setCategories] = useLocalStorage(STORAGE_KEYS.categories, DEFAULT_CATEGORIES);
+
+  // useCallback keeps the same function identity between renders, which stops
+  // child components from re-rendering for no reason.
+  const addTask = useCallback((draft) => {
+    const now = Date.now();
+    const task = {
+      id: createId(),
+      title: draft.title.trim(),
+      description: (draft.description || '').trim(),
+      status: draft.status || 'todo',
+      priority: draft.priority || 'medium',
+      category: draft.category || 'work',
+      dueDate: draft.dueDate || '',
+      createdAt: now,
+      updatedAt: now,
+    };
+    // Always build a NEW array — React compares by reference to decide
+    // whether to re-render. Mutating the old array would change nothing.
+    setTasks((prev) => [task, ...prev]);
+    return task;
+  }, [setTasks]);
+
+  const updateTask = useCallback((id, patch) => {
+    setTasks((prev) =>
+      prev.map((t) => (t.id === id ? { ...t, ...patch, updatedAt: Date.now() } : t))
+    );
+  }, [setTasks]);
+
+  const deleteTask = useCallback((id) => {
+    setTasks((prev) => prev.filter((t) => t.id !== id));
+  }, [setTasks]);
+
+  // Used by the Kanban board when a card is dropped in another column.
+  const moveTask = useCallback((id, status) => {
+    updateTask(id, { status });
+  }, [updateTask]);
+
+  // Clicking the circle on a task card toggles done / not done.
+  const toggleComplete = useCallback((id) => {
+    setTasks((prev) =>
+      prev.map((t) =>
+        t.id === id
+          ? { ...t, status: t.status === 'done' ? 'todo' : 'done', updatedAt: Date.now() }
+          : t
+      )
+    );
+  }, [setTasks]);
+
+  const addCategory = useCallback((label, color) => {
+    const id = label.trim().toLowerCase().replace(/[^a-z0-9]+/g, '-');
+    if (!id) return null;
+    let created = null;
+    setCategories((prev) => {
+      if (prev.some((c) => c.id === id)) return prev;   // no duplicates
+      created = { id, label: label.trim(), color };
+      return [...prev, created];
+    });
+    return created;
+  }, [setCategories]);
+
+  const deleteCategory = useCallback((id) => {
+    setCategories((prev) => prev.filter((c) => c.id !== id));
+    // Tasks keep working: any task in the removed category falls back to 'work'.
+    setTasks((prev) => prev.map((t) => (t.category === id ? { ...t, category: 'work' } : t)));
+  }, [setCategories, setTasks]);
+
+  const clearCompleted = useCallback(() => {
+    setTasks((prev) => prev.filter((t) => t.status !== 'done'));
+  }, [setTasks]);
+
+  // useMemo stops us from handing a brand-new object to every consumer on
+  // every render (which would re-render the entire app each time).
+  const value = useMemo(
+    () => ({ tasks, categories, addTask, updateTask, deleteTask, moveTask,
+             toggleComplete, addCategory, deleteCategory, clearCompleted }),
+    [tasks, categories, addTask, updateTask, deleteTask, moveTask,
+     toggleComplete, addCategory, deleteCategory, clearCompleted]
+  );
+
+  return <TaskContext.Provider value={value}>{children}</TaskContext.Provider>;
+}
+
+// The hook every component uses to read the shared data.
+function useTasks() {
+  const ctx = useContext(TaskContext);
+  if (!ctx) throw new Error('useTasks() must be used inside <TaskProvider>');
+  return ctx;
+}
+
+/* ===== src/components/Icon.jsx ===== */
+// ---------------------------------------------------------------------------
+// Icon.jsx — one small inline-SVG icon set.
+// Inline SVG means no icon library to install and the icons inherit the text
+// colour automatically (stroke="currentColor").
+// ---------------------------------------------------------------------------
+
+const PATHS = {
+  dashboard: 'M3 3h7v7H3zM14 3h7v4h-7zM14 11h7v10h-7zM3 14h7v7H3z',
+  list:      'M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01',
+  kanban:    'M4 4h5v16H4zM10 4h5v10h-5zM16 4h4v13h-4z',
+  calendar:  'M3 9h18M8 3v4M16 3v4M4 5h16v16H4z',
+  tag:       'M20.6 13.4 12 22l-9-9V4h9l8.6 8.6a1.4 1.4 0 0 1 0 2zM7.5 7.5h.01',
+  plus:      'M12 5v14M5 12h14',
+  search:    'M11 19a8 8 0 1 0 0-16 8 8 0 0 0 0 16zM21 21l-4.3-4.3',
+  edit:      'M12 20h9M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z',
+  trash:     'M3 6h18M8 6V4h8v2M19 6l-1 14H6L5 6M10 11v6M14 11v6',
+  close:     'M18 6 6 18M6 6l12 12',
+  check:     'M20 6 9 17l-5-5',
+  chevronL:  'M15 18l-6-6 6-6',
+  chevronR:  'M9 18l6-6-6-6',
+  clock:     'M12 22a10 10 0 1 0 0-20 10 10 0 0 0 0 20zM12 6v6l4 2',
+  alert:     'M12 9v4M12 17h.01M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z',
+  trending:  'M23 6l-9.5 9.5-5-5L1 18',
+  menu:      'M3 6h18M3 12h18M3 18h18',
+  inbox:     'M22 12h-6l-2 3h-4l-2-3H2M5.5 5h13l3.5 7v6a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2v-6z',
+};
+
+function Icon({ name, size = 18, className = '' }) {
+  return (
+    <svg
+      className={`icon ${className}`}
+      width={size} height={size} viewBox="0 0 24 24"
+      fill="none" stroke="currentColor" strokeWidth="1.8"
+      strokeLinecap="round" strokeLinejoin="round"
+      aria-hidden="true"
+    >
+      <path d={PATHS[name] || ''} />
+    </svg>
+  );
+}
+
+/* ===== src/components/Button.jsx ===== */
+// ---------------------------------------------------------------------------
+// Button.jsx — one button used everywhere.
+//
+// `variant` picks the look (primary / secondary / ghost / danger).
+// `...rest` forwards anything else (onClick, type, disabled, aria-label…)
+// straight to the real <button>, so this wrapper never blocks a feature.
+// ---------------------------------------------------------------------------
+
+function Button({
+  children, variant = 'secondary', size = 'md',
+  icon, iconOnly = false, className = '', ...rest
+}) {
+  const classes = [
+    'btn', `btn-${variant}`, `btn-${size}`,
+    iconOnly ? 'btn-icon-only' : '', className,
+  ].filter(Boolean).join(' ');
+
+  return (
+    <button className={classes} {...rest}>
+      {icon && <Icon name={icon} size={size === 'sm' ? 14 : 16} />}
+      {!iconOnly && children}
+    </button>
+  );
+}
+
+/* ===== src/components/Badge.jsx ===== */
+// ---------------------------------------------------------------------------
+// Badge.jsx — the small coloured pills for priority, status and category.
+// ---------------------------------------------------------------------------
+
+function PriorityBadge({ priority }) {
+  const item = findById(PRIORITIES, priority);
+  if (!item) return null;
+  return <span className={`badge badge-priority badge-${priority}`}>{item.label}</span>;
+}
+
+function StatusBadge({ status }) {
+  const item = findById(STATUSES, status);
+  if (!item) return null;
+  return <span className={`badge badge-status badge-${status}`}>{item.label}</span>;
+}
+
+function CategoryBadge({ category, categories }) {
+  const item = findById(categories, category);
+  if (!item) return null;
+  // The colour comes from data, so it has to be an inline style.
+  return (
+    <span className="badge badge-category" style={{ color: item.color, backgroundColor: item.color + '14' }}>
+      <span className="badge-dot" style={{ backgroundColor: item.color }} />
+      {item.label}
+    </span>
+  );
+}
+
+/* ===== src/components/Modal.jsx ===== */
+// ---------------------------------------------------------------------------
+// Modal.jsx — the dark overlay + white panel used for the task form and the
+// delete confirmation.
+// ---------------------------------------------------------------------------
+
+function Modal({ open, title, onClose, children, width = 520 }) {
+  // Close on the Escape key, and stop the page behind from scrolling.
+  useEffect(() => {
+    if (!open) return;
+    const onKey = (e) => { if (e.key === 'Escape') onClose(); };
+    document.addEventListener('keydown', onKey);
+    const previous = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    // The cleanup function runs when the modal closes or unmounts.
+    return () => {
+      document.removeEventListener('keydown', onKey);
+      document.body.style.overflow = previous;
+    };
+  }, [open, onClose]);
+
+  if (!open) return null;   // render nothing when closed
+
+  return (
+    <div className="modal-overlay" onClick={onClose} role="presentation">
+      {/* stopPropagation: a click inside the panel must not reach the
+          overlay's onClick, otherwise the modal would close instantly. */}
+      <div
+        className="modal-panel"
+        style={{ maxWidth: width }}
+        onClick={(e) => e.stopPropagation()}
+        role="dialog" aria-modal="true" aria-label={title}
+      >
+        <div className="modal-head">
+          <h2 className="modal-title">{title}</h2>
+          <button className="icon-btn" onClick={onClose} aria-label="Close dialog">
+            <Icon name="close" size={18} />
+          </button>
+        </div>
+        <div className="modal-body">{children}</div>
+      </div>
+    </div>
+  );
+}
+
+/* ===== src/components/ConfirmDialog.jsx ===== */
+// ---------------------------------------------------------------------------
+// ConfirmDialog.jsx — "are you sure?" before a delete.
+// ---------------------------------------------------------------------------
+
+function ConfirmDialog({ open, title, message, confirmLabel = 'Delete', onConfirm, onCancel }) {
+  return (
+    <Modal open={open} title={title} onClose={onCancel} width={420}>
+      <p className="confirm-message">{message}</p>
+      <div className="form-actions">
+        <Button variant="ghost" onClick={onCancel}>Cancel</Button>
+        <Button variant="danger" onClick={onConfirm}>{confirmLabel}</Button>
+      </div>
+    </Modal>
+  );
+}
+
+/* ===== src/components/EmptyState.jsx ===== */
+// ---------------------------------------------------------------------------
+// EmptyState.jsx — shown when a list has nothing in it. A blank screen looks
+// broken; an empty state explains what to do next.
+// ---------------------------------------------------------------------------
+
+function EmptyState({ icon = 'inbox', title, message, actionLabel, onAction }) {
+  return (
+    <div className="empty-state">
+      <div className="empty-icon"><Icon name={icon} size={26} /></div>
+      <h3 className="empty-title">{title}</h3>
+      {message && <p className="empty-message">{message}</p>}
+      {actionLabel && <Button variant="primary" icon="plus" onClick={onAction}>{actionLabel}</Button>}
+    </div>
+  );
+}
+
+/* ===== src/components/TaskForm.jsx ===== */
+// ---------------------------------------------------------------------------
+// TaskForm.jsx — the create AND edit form.
+//
+// It is a "controlled form": React state holds every field value, and each
+// input shows `value={...}` + `onChange={...}`. React is the single source of
+// truth, so validation and resetting are trivial.
+// ---------------------------------------------------------------------------
+
+// A blank task, used when creating rather than editing.
+const BLANK = { title: '', description: '', status: 'todo', priority: 'medium', category: 'work', dueDate: '' };
+
+function TaskForm({ initialTask, categories, onSubmit, onCancel }) {
+  // `initialTask ?? BLANK` → edit mode fills the fields, create mode is blank.
+  const [form, setForm] = useState(() => ({ ...BLANK, ...(initialTask || {}) }));
+  const [error, setError] = useState('');
+
+  // One handler for every field: it uses the input's `name` attribute.
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setForm((prev) => ({ ...prev, [name]: value }));
+    if (name === 'title' && value.trim()) setError('');
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();                  // stop the browser reloading the page
+    if (!form.title.trim()) {
+      setError('Please give the task a title.');
+      return;
+    }
+    onSubmit(form);
+  };
+
+  return (
+    <form className="task-form" onSubmit={handleSubmit} noValidate>
+      <div className="field">
+        <label className="field-label" htmlFor="title">Title</label>
+        <input
+          id="title" name="title" className={`input ${error ? 'input-error' : ''}`}
+          placeholder="e.g. Prepare the client presentation"
+          value={form.title} onChange={handleChange} autoFocus
+        />
+        {error && <p className="field-error">{error}</p>}
+      </div>
+
+      <div className="field">
+        <label className="field-label" htmlFor="description">Description <span className="field-hint">optional</span></label>
+        <textarea
+          id="description" name="description" className="input textarea" rows={3}
+          placeholder="Add any extra detail…"
+          value={form.description} onChange={handleChange}
+        />
+      </div>
+
+      <div className="field-row">
+        <div className="field">
+          <label className="field-label" htmlFor="status">Status</label>
+          <select id="status" name="status" className="input select" value={form.status} onChange={handleChange}>
+            {STATUSES.map((s) => <option key={s.id} value={s.id}>{s.label}</option>)}
+          </select>
+        </div>
+        <div className="field">
+          <label className="field-label" htmlFor="priority">Priority</label>
+          <select id="priority" name="priority" className="input select" value={form.priority} onChange={handleChange}>
+            {PRIORITIES.map((p) => <option key={p.id} value={p.id}>{p.label}</option>)}
+          </select>
+        </div>
+      </div>
+
+      <div className="field-row">
+        <div className="field">
+          <label className="field-label" htmlFor="category">Category</label>
+          <select id="category" name="category" className="input select" value={form.category} onChange={handleChange}>
+            {categories.map((c) => <option key={c.id} value={c.id}>{c.label}</option>)}
+          </select>
+        </div>
+        <div className="field">
+          <label className="field-label" htmlFor="dueDate">Due date</label>
+          <input id="dueDate" name="dueDate" type="date" className="input" value={form.dueDate} onChange={handleChange} />
+        </div>
+      </div>
+
+      <div className="form-actions">
+        <Button type="button" variant="ghost" onClick={onCancel}>Cancel</Button>
+        <Button type="submit" variant="primary">{initialTask ? 'Save changes' : 'Create task'}</Button>
+      </div>
+    </form>
+  );
+}
+
+/* ===== src/components/TaskCard.jsx ===== */
+// ---------------------------------------------------------------------------
+// TaskCard.jsx — the card used on the Kanban board and the dashboard.
+// It is also draggable (HTML5 drag & drop, no library needed).
+// ---------------------------------------------------------------------------
+
+function TaskCard({ task, categories, onEdit, onDelete, onToggle, draggable = false, onDragStart }) {
+  const overdue = isOverdue(task);
+
+  return (
+    <article
+      className={`task-card ${task.status === 'done' ? 'is-done' : ''}`}
+      draggable={draggable}
+      onDragStart={draggable ? (e) => onDragStart(e, task.id) : undefined}
+    >
+      <div className="task-card-top">
+        <button
+          className={`check-circle ${task.status === 'done' ? 'checked' : ''}`}
+          onClick={() => onToggle(task.id)}
+          aria-label={task.status === 'done' ? 'Mark as not completed' : 'Mark as completed'}
+        >
+          {task.status === 'done' && <Icon name="check" size={12} />}
+        </button>
+
+        <h4 className="task-card-title">{task.title}</h4>
+
+        <div className="task-card-actions">
+          <button className="icon-btn" onClick={() => onEdit(task)} aria-label={`Edit ${task.title}`}>
+            <Icon name="edit" size={15} />
+          </button>
+          <button className="icon-btn icon-btn-danger" onClick={() => onDelete(task)} aria-label={`Delete ${task.title}`}>
+            <Icon name="trash" size={15} />
+          </button>
+        </div>
+      </div>
+
+      {task.description && <p className="task-card-desc">{task.description}</p>}
+
+      <div className="task-card-meta">
+        <PriorityBadge priority={task.priority} />
+        <CategoryBadge category={task.category} categories={categories} />
+        {task.dueDate && (
+          <span className={`due-chip ${overdue ? 'is-overdue' : ''}`}>
+            <Icon name="clock" size={13} />
+            {formatDueDate(task.dueDate)}
+          </span>
+        )}
+      </div>
+    </article>
+  );
+}
+
+/* ===== src/components/TaskRow.jsx ===== */
+// ---------------------------------------------------------------------------
+// TaskRow.jsx — the compact one-line layout used by the list view.
+// Same data as TaskCard, different shape: that is why they are separate
+// components instead of one component full of if-statements.
+// ---------------------------------------------------------------------------
+
+function TaskRow({ task, categories, onEdit, onDelete, onToggle }) {
+  const overdue = isOverdue(task);
+
+  return (
+    <div className={`task-row ${task.status === 'done' ? 'is-done' : ''}`}>
+      <button
+        className={`check-circle ${task.status === 'done' ? 'checked' : ''}`}
+        onClick={() => onToggle(task.id)}
+        aria-label={task.status === 'done' ? 'Mark as not completed' : 'Mark as completed'}
+      >
+        {task.status === 'done' && <Icon name="check" size={12} />}
+      </button>
+
+      <div className="task-row-main">
+        <p className="task-row-title">{task.title}</p>
+        {task.description && <p className="task-row-desc">{task.description}</p>}
+      </div>
+
+      <div className="task-row-badges">
+        <CategoryBadge category={task.category} categories={categories} />
+        <PriorityBadge priority={task.priority} />
+        <StatusBadge status={task.status} />
+      </div>
+
+      <span className={`task-row-due ${overdue ? 'is-overdue' : ''}`}>
+        {task.dueDate ? formatDueDate(task.dueDate) : '—'}
+      </span>
+
+      <div className="task-row-actions">
+        <button className="icon-btn" onClick={() => onEdit(task)} aria-label={`Edit ${task.title}`}>
+          <Icon name="edit" size={15} />
+        </button>
+        <button className="icon-btn icon-btn-danger" onClick={() => onDelete(task)} aria-label={`Delete ${task.title}`}>
+          <Icon name="trash" size={15} />
+        </button>
+      </div>
+    </div>
+  );
+}
+
+/* ===== src/components/StatCard.jsx ===== */
+// ---------------------------------------------------------------------------
+// StatCard.jsx — one number + label tile on the dashboard.
+// ---------------------------------------------------------------------------
+
+function StatCard({ label, value, icon, tone = 'blue', hint }) {
+  return (
+    <div className="stat-card">
+      <div className={`stat-icon tone-${tone}`}><Icon name={icon} size={18} /></div>
+      <div className="stat-body">
+        <p className="stat-value">{value}</p>
+        <p className="stat-label">{label}</p>
+        {hint && <p className="stat-hint">{hint}</p>}
+      </div>
+    </div>
+  );
+}
+
+/* ===== src/components/FilterBar.jsx ===== */
+// ---------------------------------------------------------------------------
+// FilterBar.jsx — search box + the status / priority / category / sort menus.
+//
+// This component owns NO state. The parent page holds the `filters` object
+// and passes it down; this component just reports changes back up with
+// onChange. That pattern is called "lifting state up", and it means the page
+// (not the filter bar) decides what to do with a filter change.
+// ---------------------------------------------------------------------------
+
+function FilterBar({ filters, onChange, categories, showStatus = true, showSort = true, resultCount }) {
+  // Change one key of the filters object, keep the rest.
+  const set = (key, value) => onChange({ ...filters, [key]: value });
+
+  return (
+    <div className="filter-bar">
+      <div className="search-box">
+        <Icon name="search" size={16} className="search-icon" />
+        <input
+          className="search-input"
+          type="search"
+          placeholder="Search tasks…"
+          value={filters.search}
+          onChange={(e) => set('search', e.target.value)}
+          aria-label="Search tasks"
+        />
+      </div>
+
+      <div className="filter-selects">
+        {showStatus && (
+          <select className="input select select-sm" value={filters.status} onChange={(e) => set('status', e.target.value)} aria-label="Filter by status">
+            <option value="all">All statuses</option>
+            {STATUSES.map((s) => <option key={s.id} value={s.id}>{s.label}</option>)}
+          </select>
+        )}
+
+        <select className="input select select-sm" value={filters.priority} onChange={(e) => set('priority', e.target.value)} aria-label="Filter by priority">
+          <option value="all">All priorities</option>
+          {PRIORITIES.map((p) => <option key={p.id} value={p.id}>{p.label}</option>)}
+        </select>
+
+        <select className="input select select-sm" value={filters.category} onChange={(e) => set('category', e.target.value)} aria-label="Filter by category">
+          <option value="all">All categories</option>
+          {categories.map((c) => <option key={c.id} value={c.id}>{c.label}</option>)}
+        </select>
+
+        {showSort && (
+          <select className="input select select-sm" value={filters.sortBy} onChange={(e) => set('sortBy', e.target.value)} aria-label="Sort tasks">
+            <option value="newest">Newest first</option>
+            <option value="oldest">Oldest first</option>
+            <option value="dueDate">Due date</option>
+            <option value="priority">Priority</option>
+            <option value="title">Title A–Z</option>
+          </select>
+        )}
+      </div>
+
+      {typeof resultCount === 'number' && (
+        <span className="result-count">{resultCount} {resultCount === 1 ? 'task' : 'tasks'}</span>
+      )}
+    </div>
+  );
+}
+
+/* ===== src/components/Sidebar.jsx ===== */
+// ---------------------------------------------------------------------------
+// Sidebar.jsx — left navigation.
+// On mobile it slides in over the page; `open` and `onClose` control that.
+// ---------------------------------------------------------------------------
+
+const NAV = [
+  { id: 'dashboard',  label: 'Dashboard',  icon: 'dashboard' },
+  { id: 'tasks',      label: 'All Tasks',  icon: 'list' },
+  { id: 'kanban',     label: 'Kanban',     icon: 'kanban' },
+  { id: 'calendar',   label: 'Calendar',   icon: 'calendar' },
+  { id: 'categories', label: 'Categories', icon: 'tag' },
+];
+
+function Sidebar({ current, onNavigate, open, onClose }) {
+  const { tasks } = useTasks();
+
+  // Little count badges next to the nav items.
+  const counts = {
+    tasks: tasks.filter((t) => t.status !== 'done').length,
+    kanban: tasks.length,
+  };
+  const overdueCount = tasks.filter(isOverdue).length;
+
+  return (
+    <>
+      {/* Dark backdrop, mobile only — tapping it closes the menu. */}
+      {open && <div className="sidebar-backdrop" onClick={onClose} />}
+
+      <aside className={`sidebar ${open ? 'is-open' : ''}`}>
+        <div className="brand">
+          <div className="brand-mark">T</div>
+          <div>
+            <p className="brand-name">Taskly</p>
+            <p className="brand-sub">Task manager</p>
+          </div>
+        </div>
+
+        <nav className="nav">
+          <p className="nav-section">Workspace</p>
+          {NAV.map((item) => (
+            <button
+              key={item.id}
+              className={`nav-item ${current === item.id ? 'is-active' : ''}`}
+              onClick={() => { onNavigate(item.id); onClose(); }}
+              aria-current={current === item.id ? 'page' : undefined}
+            >
+              <Icon name={item.icon} size={17} />
+              <span>{item.label}</span>
+              {counts[item.id] > 0 && <span className="nav-count">{counts[item.id]}</span>}
+            </button>
+          ))}
+        </nav>
+
+        {overdueCount > 0 && (
+          <div className="sidebar-alert">
+            <Icon name="alert" size={16} />
+            <div>
+              <p className="sidebar-alert-title">{overdueCount} overdue</p>
+              <p className="sidebar-alert-sub">Tasks past their due date</p>
+            </div>
+          </div>
+        )}
+
+        <div className="sidebar-foot">
+          <p className="foot-note">Saved automatically to this browser</p>
+        </div>
+      </aside>
+    </>
+  );
+}
+
+/* ===== src/components/Topbar.jsx ===== */
+// ---------------------------------------------------------------------------
+// Topbar.jsx — page title, mobile menu button, and the "New task" button.
+// ---------------------------------------------------------------------------
+
+function Topbar({ title, subtitle, onNewTask, onMenu }) {
+  return (
+    <header className="topbar">
+      <button className="icon-btn menu-btn" onClick={onMenu} aria-label="Open navigation">
+        <Icon name="menu" size={20} />
+      </button>
+
+      <div className="topbar-text">
+        <h1 className="page-title">{title}</h1>
+        {subtitle && <p className="page-subtitle">{subtitle}</p>}
+      </div>
+
+      <Button variant="primary" icon="plus" onClick={onNewTask}>New task</Button>
+    </header>
+  );
+}
+
+/* ===== src/pages/Dashboard.jsx ===== */
+// ---------------------------------------------------------------------------
+// Dashboard.jsx — statistics + two short lists (due soon, recently added).
+// ---------------------------------------------------------------------------
+
+function Dashboard({ onEdit, onDelete, onNewTask }) {
+  const { tasks, categories, toggleComplete } = useTasks();
+
+  // useMemo caches the result and only recalculates when `tasks` changes.
+  const stats = useMemo(() => getStats(tasks), [tasks]);
+
+  // Unfinished tasks with a due date in the next 7 days (overdue included).
+  const dueSoon = useMemo(() => {
+    const today = startOfToday();
+    const limit = new Date(today); limit.setDate(limit.getDate() + 7);
+    return sortTasks(
+      tasks.filter((t) => {
+        if (t.status === 'done' || !t.dueDate) return false;
+        const d = parseDateInput(t.dueDate);
+        return d && d <= limit;
+      }),
+      'dueDate'
+    ).slice(0, 4);
+  }, [tasks]);
+
+  const recent = useMemo(() => sortTasks(tasks, 'newest').slice(0, 4), [tasks]);
+
+  // How many tasks sit in each status — used for the progress bar.
+  const byStatus = STATUSES.map((s) => ({
+    ...s,
+    count: tasks.filter((t) => t.status === s.id).length,
+  }));
+
+  return (
+    <div className="page">
+      <section className="stat-grid">
+        <StatCard label="Total tasks"  value={stats.total}    icon="inbox"    tone="blue" />
+        <StatCard label="In progress"  value={stats.progress} icon="trending" tone="amber" />
+        <StatCard label="Completed"    value={stats.done}     icon="check"    tone="green"
+                  hint={`${stats.completionRate}% of all tasks`} />
+        <StatCard label="Overdue"      value={stats.overdue}  icon="alert"    tone="red"
+                  hint={stats.dueToday > 0 ? `${stats.dueToday} due today` : undefined} />
+      </section>
+
+      <section className="panel">
+        <div className="panel-head">
+          <h2 className="panel-title">Progress</h2>
+          <span className="panel-meta">{stats.completionRate}% complete</span>
+        </div>
+
+        {/* The bar: each segment's width is its share of all tasks. */}
+        <div className="progress-track">
+          {byStatus.map((s) => (
+            s.count > 0 && (
+              <div
+                key={s.id}
+                className={`progress-seg seg-${s.id}`}
+                style={{ width: `${(s.count / stats.total) * 100}%` }}
+                title={`${s.label}: ${s.count}`}
+              />
+            )
+          ))}
+          {stats.total === 0 && <div className="progress-seg seg-empty" style={{ width: '100%' }} />}
+        </div>
+
+        <div className="progress-legend">
+          {byStatus.map((s) => (
+            <span key={s.id} className="legend-item">
+              <span className={`legend-dot seg-${s.id}`} />
+              {s.label} <strong>{s.count}</strong>
+            </span>
+          ))}
+          <span className="legend-item legend-high">
+            <Icon name="alert" size={13} /> High priority open <strong>{stats.highPrio}</strong>
+          </span>
+        </div>
+      </section>
+
+      <div className="dash-columns">
+        <section className="panel">
+          <div className="panel-head">
+            <h2 className="panel-title">Due in the next 7 days</h2>
+          </div>
+          {dueSoon.length === 0 ? (
+            <EmptyState icon="calendar" title="Nothing due soon" message="You are all caught up for the week." />
+          ) : (
+            <div className="card-stack">
+              {dueSoon.map((task) => (
+                <TaskCard key={task.id} task={task} categories={categories}
+                          onEdit={onEdit} onDelete={onDelete} onToggle={toggleComplete} />
+              ))}
+            </div>
+          )}
+        </section>
+
+        <section className="panel">
+          <div className="panel-head">
+            <h2 className="panel-title">Recently added</h2>
+          </div>
+          {recent.length === 0 ? (
+            <EmptyState icon="inbox" title="No tasks yet"
+                        message="Create your first task to get started."
+                        actionLabel="New task" onAction={onNewTask} />
+          ) : (
+            <div className="card-stack">
+              {recent.map((task) => (
+                <TaskCard key={task.id} task={task} categories={categories}
+                          onEdit={onEdit} onDelete={onDelete} onToggle={toggleComplete} />
+              ))}
+            </div>
+          )}
+        </section>
+      </div>
+    </div>
+  );
+}
+
+/* ===== src/pages/TaskList.jsx ===== */
+// ---------------------------------------------------------------------------
+// TaskList.jsx — the searchable, filterable, sortable list of every task.
+// ---------------------------------------------------------------------------
+
+function TaskList({ filters, onFiltersChange, onEdit, onDelete, onNewTask }) {
+  const { tasks, categories, toggleComplete, clearCompleted } = useTasks();
+
+  // Filter first, then sort. Recalculated only when the inputs change.
+  const visible = useMemo(
+    () => sortTasks(filterTasks(tasks, filters), filters.sortBy),
+    [tasks, filters]
+  );
+
+  const completedCount = tasks.filter((t) => t.status === 'done').length;
+  // "Filters are active" = the empty result is caused by the filters, not by
+  // an empty task list. The empty state message changes accordingly.
+  const hasFilters =
+    filters.search.trim() !== '' || filters.status !== 'all' ||
+    filters.priority !== 'all' || filters.category !== 'all';
+
+  return (
+    <div className="page">
+      <FilterBar filters={filters} onChange={onFiltersChange}
+                 categories={categories} resultCount={visible.length} />
+
+      {completedCount > 0 && (
+        <div className="list-toolbar">
+          <Button variant="ghost" size="sm" icon="trash" onClick={clearCompleted}>
+            Clear {completedCount} completed
+          </Button>
+        </div>
+      )}
+
+      {visible.length === 0 ? (
+        hasFilters ? (
+          <EmptyState icon="search" title="No matching tasks"
+                      message="Try a different search term or reset the filters."
+                      actionLabel="Reset filters"
+                      onAction={() => onFiltersChange({ search: '', status: 'all', priority: 'all', category: 'all', sortBy: filters.sortBy })} />
+        ) : (
+          <EmptyState icon="inbox" title="No tasks yet"
+                      message="Create your first task and it will appear here."
+                      actionLabel="New task" onAction={onNewTask} />
+        )
+      ) : (
+        <div className="task-list">
+          {visible.map((task) => (
+            <TaskRow key={task.id} task={task} categories={categories}
+                     onEdit={onEdit} onDelete={onDelete} onToggle={toggleComplete} />
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+/* ===== src/pages/KanbanBoard.jsx ===== */
+// ---------------------------------------------------------------------------
+// KanbanBoard.jsx — three columns, cards you can drag between them.
+//
+// Drag & drop uses the browser's built-in HTML5 API — no library:
+//   1. onDragStart  : remember which task id is moving
+//   2. onDragOver   : call preventDefault(), otherwise the browser refuses
+//                     to allow a drop at all
+//   3. onDrop       : update that task's status
+// Buttons under each card do the same thing with a click, so the board is
+// still fully usable on a touch screen or with a keyboard.
+// ---------------------------------------------------------------------------
+
+function KanbanBoard({ filters, onFiltersChange, onEdit, onDelete, onNewTask }) {
+  const { tasks, categories, moveTask, toggleComplete } = useTasks();
+  const [dragOverCol, setDragOverCol] = useState(null);   // for the highlight
+
+  const visible = useMemo(
+    () => sortTasks(filterTasks(tasks, { ...filters, status: 'all' }), filters.sortBy),
+    [tasks, filters]
+  );
+
+  const handleDragStart = (e, taskId) => {
+    // dataTransfer is how the browser carries data from drag to drop.
+    e.dataTransfer.setData('text/plain', taskId);
+    e.dataTransfer.effectAllowed = 'move';
+  };
+
+  const handleDrop = (e, statusId) => {
+    e.preventDefault();
+    const taskId = e.dataTransfer.getData('text/plain');
+    if (taskId) moveTask(taskId, statusId);
+    setDragOverCol(null);
+  };
+
+  return (
+    <div className="page">
+      <FilterBar filters={filters} onChange={onFiltersChange}
+                 categories={categories} showStatus={false} resultCount={visible.length} />
+
+      <div className="kanban">
+        {STATUSES.map((status) => {
+          const columnTasks = visible.filter((t) => t.status === status.id);
+          return (
+            <section
+              key={status.id}
+              className={`kanban-col ${dragOverCol === status.id ? 'is-dragover' : ''}`}
+              onDragOver={(e) => { e.preventDefault(); setDragOverCol(status.id); }}
+              onDragLeave={() => setDragOverCol(null)}
+              onDrop={(e) => handleDrop(e, status.id)}
+            >
+              <div className="kanban-head">
+                <span className={`kanban-dot seg-${status.id}`} />
+                <h2 className="kanban-title">{status.label}</h2>
+                <span className="kanban-count">{columnTasks.length}</span>
+              </div>
+
+              <div className="kanban-body">
+                {columnTasks.map((task) => (
+                  <div key={task.id} className="kanban-item">
+                    <TaskCard task={task} categories={categories}
+                              onEdit={onEdit} onDelete={onDelete} onToggle={toggleComplete}
+                              draggable onDragStart={handleDragStart} />
+                    {/* Click-based alternative to dragging. */}
+                    <div className="move-row">
+                      {STATUSES.filter((s) => s.id !== status.id).map((s) => (
+                        <button key={s.id} className="move-btn"
+                                onClick={() => moveTask(task.id, s.id)}>
+                          Move to {s.label}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                ))}
+
+                {columnTasks.length === 0 && (
+                  <p className="kanban-empty">Drop a task here</p>
+                )}
+              </div>
+
+              {status.id === 'todo' && (
+                <Button variant="ghost" size="sm" icon="plus" className="kanban-add" onClick={onNewTask}>
+                  Add task
+                </Button>
+              )}
+            </section>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+/* ===== src/pages/CalendarView.jsx ===== */
+// ---------------------------------------------------------------------------
+// CalendarView.jsx — month grid with each task on its due date.
+// Click a day to see everything due that day.
+// ---------------------------------------------------------------------------
+
+const WEEKDAYS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+
+function CalendarView({ onEdit, onDelete, onNewTask }) {
+  const { tasks, categories, toggleComplete } = useTasks();
+  const today = startOfToday();
+
+  // Which month is on screen, and which day the user clicked.
+  const [cursor, setCursor] = useState(() => new Date(today.getFullYear(), today.getMonth(), 1));
+  const [selected, setSelected] = useState(() => toDateInput(today));
+
+  const cells = useMemo(
+    () => buildMonthGrid(cursor.getFullYear(), cursor.getMonth()),
+    [cursor]
+  );
+
+  // Group tasks by due date once, so each cell is a cheap lookup instead of
+  // filtering the whole task list 42 times.
+  const byDate = useMemo(() => {
+    const map = {};
+    tasks.forEach((t) => {
+      if (!t.dueDate) return;
+      (map[t.dueDate] = map[t.dueDate] || []).push(t);
+    });
+    return map;
+  }, [tasks]);
+
+  const shiftMonth = (delta) =>
+    setCursor((c) => new Date(c.getFullYear(), c.getMonth() + delta, 1));
+
+  const selectedTasks = byDate[selected] || [];
+  const undated = tasks.filter((t) => !t.dueDate);
+
+  return (
+    <div className="page">
+      <div className="cal-toolbar">
+        <div className="cal-nav">
+          <button className="icon-btn" onClick={() => shiftMonth(-1)} aria-label="Previous month">
+            <Icon name="chevronL" size={18} />
+          </button>
+          <h2 className="cal-month">
+            {cursor.toLocaleDateString(undefined, { month: 'long', year: 'numeric' })}
+          </h2>
+          <button className="icon-btn" onClick={() => shiftMonth(1)} aria-label="Next month">
+            <Icon name="chevronR" size={18} />
+          </button>
+        </div>
+        <Button variant="secondary" size="sm" onClick={() => {
+          setCursor(new Date(today.getFullYear(), today.getMonth(), 1));
+          setSelected(toDateInput(today));
+        }}>Today</Button>
+      </div>
+
+      <div className="cal-layout">
+        <div className="panel cal-panel">
+          <div className="cal-weekdays">
+            {WEEKDAYS.map((d) => <span key={d} className="cal-weekday">{d}</span>)}
+          </div>
+
+          <div className="cal-grid">
+            {cells.map(({ date, inMonth }) => {
+              const key = toDateInput(date);
+              const dayTasks = byDate[key] || [];
+              const isToday = key === toDateInput(today);
+              return (
+                <button
+                  key={key}
+                  className={`cal-cell ${inMonth ? '' : 'is-outside'} ${isToday ? 'is-today' : ''} ${selected === key ? 'is-selected' : ''}`}
+                  onClick={() => setSelected(key)}
+                >
+                  <span className="cal-daynum">{date.getDate()}</span>
+                  <span className="cal-dots">
+                    {dayTasks.slice(0, 3).map((t) => (
+                      <span key={t.id} className={`cal-dot dot-${t.priority} ${t.status === 'done' ? 'is-done' : ''}`} />
+                    ))}
+                    {dayTasks.length > 3 && <span className="cal-more">+{dayTasks.length - 3}</span>}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+
+        <aside className="panel cal-side">
+          <div className="panel-head">
+            <h2 className="panel-title">
+              {new Date(selected + 'T00:00:00').toLocaleDateString(undefined, { weekday: 'long', day: 'numeric', month: 'long' })}
+            </h2>
+            <span className="panel-meta">{selectedTasks.length} due</span>
+          </div>
+
+          {selectedTasks.length === 0 ? (
+            <EmptyState icon="calendar" title="Nothing due this day"
+                        message="Pick another date, or add a task for this one."
+                        actionLabel="New task" onAction={onNewTask} />
+          ) : (
+            <div className="card-stack">
+              {selectedTasks.map((task) => (
+                <TaskCard key={task.id} task={task} categories={categories}
+                          onEdit={onEdit} onDelete={onDelete} onToggle={toggleComplete} />
+              ))}
+            </div>
+          )}
+
+          {undated.length > 0 && (
+            <div className="cal-undated">
+              <p className="cal-undated-title">{undated.length} task{undated.length === 1 ? '' : 's'} with no due date</p>
+            </div>
+          )}
+        </aside>
+      </div>
+    </div>
+  );
+}
+
+/* ===== src/pages/Categories.jsx ===== */
+// ---------------------------------------------------------------------------
+// Categories.jsx — add / remove categories and see how many tasks use each.
+// ---------------------------------------------------------------------------
+
+const SWATCHES = ['#2563eb', '#7c3aed', '#db2777', '#dc2626', '#ea580c', '#059669', '#0891b2', '#475569'];
+
+function Categories() {
+  const { tasks, categories, addCategory, deleteCategory } = useTasks();
+  const [label, setLabel] = useState('');
+  const [color, setColor] = useState(SWATCHES[0]);
+  const [error, setError] = useState('');
+  const [pendingDelete, setPendingDelete] = useState(null);
+
+  const handleAdd = (e) => {
+    e.preventDefault();
+    const clean = label.trim();
+    if (!clean) { setError('Enter a category name.'); return; }
+    const id = clean.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+    if (categories.some((c) => c.id === id)) { setError('That category already exists.'); return; }
+    addCategory(clean, color);
+    setLabel(''); setError('');
+  };
+
+  const countFor = (id) => tasks.filter((t) => t.category === id).length;
+
+  return (
+    <div className="page">
+      <section className="panel">
+        <div className="panel-head"><h2 className="panel-title">Add a category</h2></div>
+
+        <form className="cat-form" onSubmit={handleAdd}>
+          <div className="field cat-field">
+            <input className={`input ${error ? 'input-error' : ''}`} placeholder="Category name, e.g. Marketing"
+                   value={label} onChange={(e) => { setLabel(e.target.value); setError(''); }} />
+            {error && <p className="field-error">{error}</p>}
+          </div>
+
+          <div className="swatches" role="radiogroup" aria-label="Category colour">
+            {SWATCHES.map((c) => (
+              <button key={c} type="button" role="radio" aria-checked={color === c}
+                      className={`swatch ${color === c ? 'is-active' : ''}`}
+                      style={{ backgroundColor: c }} onClick={() => setColor(c)}
+                      aria-label={`Colour ${c}`} />
+            ))}
+          </div>
+
+          <Button type="submit" variant="primary" icon="plus">Add</Button>
+        </form>
+      </section>
+
+      <section className="panel">
+        <div className="panel-head">
+          <h2 className="panel-title">Your categories</h2>
+          <span className="panel-meta">{categories.length} total</span>
+        </div>
+
+        <div className="cat-grid">
+          {categories.map((c) => {
+            const count = countFor(c.id);
+            return (
+              <div key={c.id} className="cat-card">
+                <span className="cat-dot" style={{ backgroundColor: c.color }} />
+                <div className="cat-body">
+                  <p className="cat-name">{c.label}</p>
+                  <p className="cat-count">{count} task{count === 1 ? '' : 's'}</p>
+                </div>
+                <button className="icon-btn icon-btn-danger" onClick={() => setPendingDelete(c)}
+                        aria-label={`Delete ${c.label}`}>
+                  <Icon name="trash" size={15} />
+                </button>
+              </div>
+            );
+          })}
+        </div>
+      </section>
+
+      <ConfirmDialog
+        open={pendingDelete !== null}
+        title="Delete category"
+        message={pendingDelete
+          ? `Delete "${pendingDelete.label}"? Its ${countFor(pendingDelete.id)} task(s) will move to Work. No task is deleted.`
+          : ''}
+        onCancel={() => setPendingDelete(null)}
+        onConfirm={() => { deleteCategory(pendingDelete.id); setPendingDelete(null); }}
+      />
+    </div>
+  );
+}
+
+/* ===== src/App.jsx ===== */
+// ---------------------------------------------------------------------------
+// App.jsx — the root component.
+//
+// It owns three pieces of state:
+//   page      → which view is on screen (simple routing, no router library)
+//   filters   → shared by the list and the Kanban board
+//   editing   → null = closed, {} = creating, {task} = editing that task
+// ---------------------------------------------------------------------------
+
+const PAGE_META = {
+  dashboard:  { title: 'Dashboard',  subtitle: 'An overview of everything on your plate' },
+  tasks:      { title: 'All Tasks',  subtitle: 'Search, filter and sort every task' },
+  kanban:     { title: 'Kanban',     subtitle: 'Drag a card to change its status' },
+  calendar:   { title: 'Calendar',   subtitle: 'See your tasks by due date' },
+  categories: { title: 'Categories', subtitle: 'Organise tasks into groups' },
+};
+
+const DEFAULT_FILTERS = { search: '', status: 'all', priority: 'all', category: 'all', sortBy: 'newest' };
+
+// Shell is a separate component because it needs useTasks(), and a component
+// can only read a Context that one of its PARENTS provides. <TaskProvider>
+// wraps <Shell/> below, so Shell can read it but App itself could not.
+function Shell() {
+  const { categories, addTask, updateTask, deleteTask } = useTasks();
+
+  const [page, setPage] = useState('dashboard');
+  const [filters, setFilters] = useState(DEFAULT_FILTERS);
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [editing, setEditing] = useState(null);        // null | { task?: Task }
+  const [pendingDelete, setPendingDelete] = useState(null);
+
+  const openCreate = useCallback(() => setEditing({ task: null }), []);
+  const openEdit   = useCallback((task) => setEditing({ task }), []);
+  const closeForm  = useCallback(() => setEditing(null), []);
+
+  // One submit handler for both modes: if we have a task, update it,
+  // otherwise create a new one.
+  const handleSubmit = (values) => {
+    if (editing?.task) updateTask(editing.task.id, values);
+    else addTask(values);
+    setEditing(null);
+  };
+
+  const confirmDelete = () => {
+    deleteTask(pendingDelete.id);
+    setPendingDelete(null);
+  };
+
+  const meta = PAGE_META[page];
+
+  const renderPage = () => {
+    const shared = { onEdit: openEdit, onDelete: setPendingDelete, onNewTask: openCreate };
+    switch (page) {
+      case 'tasks':      return <TaskList    filters={filters} onFiltersChange={setFilters} {...shared} />;
+      case 'kanban':     return <KanbanBoard filters={filters} onFiltersChange={setFilters} {...shared} />;
+      case 'calendar':   return <CalendarView {...shared} />;
+      case 'categories': return <Categories />;
+      case 'dashboard':
+      default:           return <Dashboard {...shared} />;
+    }
+  };
+
+  return (
+    <div className="app">
+      <Sidebar current={page} onNavigate={setPage}
+               open={menuOpen} onClose={() => setMenuOpen(false)} />
+
+      <main className="main">
+        <Topbar title={meta.title} subtitle={meta.subtitle}
+                onNewTask={openCreate} onMenu={() => setMenuOpen(true)} />
+        {renderPage()}
+      </main>
+
+      {/* `key` forces React to build a FRESH form when the target task
+          changes, so the fields always show the right starting values. */}
+      <Modal open={editing !== null}
+             title={editing?.task ? 'Edit task' : 'New task'}
+             onClose={closeForm}>
+        {editing !== null && (
+          <TaskForm key={editing.task?.id || 'new'}
+                    initialTask={editing.task}
+                    categories={categories}
+                    onSubmit={handleSubmit}
+                    onCancel={closeForm} />
+        )}
+      </Modal>
+
+      <ConfirmDialog
+        open={pendingDelete !== null}
+        title="Delete task"
+        message={pendingDelete ? `Delete "${pendingDelete.title}"? This cannot be undone.` : ''}
+        onCancel={() => setPendingDelete(null)}
+        onConfirm={confirmDelete}
+      />
+    </div>
+  );
+}
+
+function App() {
+  return (
+    <TaskProvider>
+      <Shell />
+    </TaskProvider>
+  );
+}
+
+/* ===== mount the app ===== */
+createRoot(document.getElementById('root')).render(<App />);
+</script>
+</body>
+</html>
