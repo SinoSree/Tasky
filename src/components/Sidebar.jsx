@@ -17,6 +17,10 @@ const NAV = [
   { id: 'categories', label: 'Categories', icon: 'tag' },
 ];
 
+// Kept apart from the list above: this page is for learning React, not for
+// managing work. Removing these two lines removes the page from the menu.
+const LEARN_NAV = { id: 'learn', label: 'Learn React', icon: 'book' };
+
 export default function Sidebar({ current, onNavigate, open, onClose }) {
   const { tasks } = useTasks();
 
@@ -55,6 +59,16 @@ export default function Sidebar({ current, onNavigate, open, onClose }) {
               {counts[item.id] > 0 && <span className="nav-count">{counts[item.id]}</span>}
             </button>
           ))}
+
+          <p className="nav-section">Learning</p>
+          <button
+            className={`nav-item ${current === LEARN_NAV.id ? 'is-active' : ''}`}
+            onClick={() => { onNavigate(LEARN_NAV.id); onClose(); }}
+            aria-current={current === LEARN_NAV.id ? 'page' : undefined}
+          >
+            <Icon name={LEARN_NAV.icon} size={17} />
+            <span>{LEARN_NAV.label}</span>
+          </button>
         </nav>
 
         {overdueCount > 0 && (

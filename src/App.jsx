@@ -22,6 +22,7 @@ import KanbanBoard from './pages/KanbanBoard.jsx';
 import CalendarView from './pages/CalendarView.jsx';
 import Categories from './pages/Categories.jsx';
 import Team from './pages/Team.jsx';
+import Learn from './pages/Learn.jsx';
 import { TaskProvider, useTasks } from './context/TaskContext.jsx';
 import { AuthProvider, useAuth } from './context/AuthContext.jsx';
 
@@ -32,6 +33,7 @@ const PAGE_META = {
   calendar:   { title: 'Calendar',   subtitle: 'See your tasks by due date' },
   team:       { title: 'Team',       subtitle: 'People you can assign tasks to' },
   categories: { title: 'Categories', subtitle: 'Organise tasks into groups' },
+  learn:      { title: 'Learn React', subtitle: 'A safe playground — your real tasks are not touched' },
 };
 
 const DEFAULT_FILTERS = {
@@ -74,6 +76,7 @@ function Shell() {
       case 'calendar':   return <CalendarView {...shared} />;
       case 'team':       return <Team />;
       case 'categories': return <Categories />;
+      case 'learn':      return <Learn />;
       case 'dashboard':
       default:           return <Dashboard {...shared} />;
     }
