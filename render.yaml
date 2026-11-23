@@ -1,0 +1,61 @@
+# ---------------------------------------------------------------------------
+# render.yaml — how to run Taskly on Render.
+#
+# Render reads this when you create a "Blueprint" from the repository, so the
+# service is configured from here instead of filled in by hand.
+#
+# It serves BOTH the API and the React app from one address. That is
+# deliberate: the login is a cookie, and a cookie shared between two
+# different sites is a third-party cookie — blocked by Safari, isolated by
+# Firefox, being phased out by Chrome. One origin keeps it first-party.
+#
+# NOTE ON THE FREE PLAN: the service sleeps after about 15 minutes with no
+# traffic, and the next request waits ~30 seconds while it wakes. Fine for a
+# personal project; the reason the first sign-in of the day feels slow.
+# ---------------------------------------------------------------------------
+services:
+  - type: web
+    name: taskly
+    runtime: node
+    plan: free
+    region: singapore          # nearest to India; see Render's region list
+    rootDir: server            # package.json for the API lives here
+    buildCommand: npm install
+    startCommand: npm start
+
+    # Render calls this to check the service is alive. It touches no
+    # database, so it answers even if MongoDB is briefly unreachable.
+    healthCheckPath: /api/health
+
+    envVars:
+      - key: NODE_ENV
+        value: production
+
+      # The app is served from this same service, so no other origin needs
+      # permission. Left empty on purpose — adding origins here would mean
+      # third-party cookies again.
+      - key: CLIENT_ORIGIN
+        value: ""
+
+      # `sync: false` means Render ASKS for the value in its dashboard and
+      # keeps it there. Secrets never enter this file or the repository.
+      - key: MONGODB_URI
+        sync: false            # Atlas connection string
+      - key: SMTP_USER
+        sync: false            # Brevo login, e.g. c4b5a2001@smtp-brevo.com
+      - key: SMTP_PASS
+        sync: false            # Brevo SMTP key
+      - key: MAIL_FROM_ADDRESS
+        sync: false            # the sender you verified with Brevo
+
+      # Render generates a long random value once and keeps it. Better than
+      # reusing the development secret, which has been seen on this machine.
+      - key: JWT_SECRET
+        generateValue: true
+
+      - key: SMTP_HOST
+        value: smtp-relay.brevo.com
+      - key: SMTP_PORT
+        value: "587"
+      - key: MAIL_FROM_NAME
+        value: Taskly

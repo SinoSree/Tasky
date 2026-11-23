@@ -33,8 +33,12 @@ export function setAuthCookie(res, user) {
     secure: env.isProduction,       // HTTPS only once deployed
     // 'lax' blocks the cookie on cross-site POSTs, which stops CSRF — a
     // malicious page cannot make your browser act as you on this API.
-    // Different ports on localhost count as the same site, so dev works.
-    sameSite: env.isProduction ? 'none' : 'lax',
+    //
+    // It is safe to use in production because the backend serves the page
+    // as well, so the cookie is first-party. The alternative, 'none', would
+    // make it a third-party cookie: weaker against CSRF, and increasingly
+    // just blocked by browsers.
+    sameSite: 'lax',
     maxAge: 7 * 24 * 60 * 60 * 1000,
     path: '/',
   });
