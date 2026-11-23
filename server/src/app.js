@@ -72,15 +72,30 @@ export function createApp() {
   // CORS: browsers refuse cross-origin requests unless the server says the
   // origin is allowed. `credentials: true` is what permits the login cookie
   // to travel — and it REQUIRES naming exact origins, never "*".
-  app.use(cors({
-    origin(origin, callback) {
-      // No origin: curl, Postman, server-to-server. Not a browser, so the
-      // cross-origin rules do not apply.
-      if (!origin) return callback(null, true);
-      if (env.clientOrigins.includes(origin)) return callback(null, true);
-      callback(new Error(`Origin ${origin} is not allowed by CORS.`));
-    },
-    credentials: true,
+  // The page is served from this server, so the browser sends its own
+  // address as the Origin. That must always be allowed: refusing it breaks
+  // every request the app makes to itself.
+  //
+  // This takes the whole request, not just the origin string, so it can
+  // compare against the host actually being addressed — which works
+  // wherever the app is deployed, without listing the address anywhere.
+  //
+  // A disallowed origin simply gets no CORS header, which the browser then
+  // blocks. The previous version threw instead, and the thrown error
+  // surfaced to the user as "Something went wrong" with a 500.
+  app.use(cors((req, callback) => {
+    const origin = req.headers.origin;
+
+    // No origin: curl, Postman, server-to-server. Not a browser, so the
+    // cross-origin rules do not apply.
+    if (!origin) return callback(null, { origin: true, credentials: true });
+
+    // req.protocol honours x-forwarded-proto because `trust proxy` is set,
+    // so this is correct behind Render's HTTPS proxy too.
+    const sameOrigin = origin === `${req.protocol}://${req.headers.host}`;
+    const allowed = sameOrigin || env.clientOrigins.includes(origin);
+
+    callback(null, { origin: allowed, credentials: true });
   }));
 
   // Turns a JSON request body into req.body. The size cap stops someone
