@@ -364,7 +364,44 @@ a database or a mail credential.
 
 Two accounts, both free. Nothing works until these are done.
 
-**1. MongoDB Atlas — the database**
+### Option A — local MongoDB, no accounts needed
+
+Installed once with Homebrew; no signup, no website.
+
+```bash
+brew tap mongodb/brew
+brew trust mongodb/brew
+brew install mongodb-community
+brew services start mongodb/brew/mongodb-community
+```
+
+Then in `server/.env`:
+
+```
+MONGODB_URI=mongodb://127.0.0.1:27017/taskly
+```
+
+Run it with codes printed to the terminal instead of emailed:
+
+```bash
+cd server && node tests/dev-server.js
+```
+
+Accounts and codes are stored in the real database, so they survive restarts.
+Add the Gmail settings below whenever you want codes to arrive by email, and
+use `npm start` instead.
+
+Useful commands:
+
+| | |
+|---|---|
+| `brew services stop mongodb/brew/mongodb-community` | stop the database |
+| `mongosh taskly` | open a shell on it |
+| `mongosh taskly --eval 'db.users.find()'` | list accounts |
+
+### Option B — MongoDB Atlas (cloud)
+
+**Atlas setup**
 
 1. Sign up at <https://www.mongodb.com/cloud/atlas/register>
 2. Create a free **M0** cluster (any provider/region)
