@@ -73,14 +73,12 @@ const userSchema = new mongoose.Schema(
 );
 
 // --- Indexes ---------------------------------------------------------------
-// `unique: true` above already asks for these, but declaring them here lets
-// us add a collation so uniqueness ignores letter case, and keeps every
-// index decision in one visible place.
+// The `unique: true` on email and mobile above already creates the unique
+// indexes. Repeating them here with schema.index() built the same index
+// twice and made Mongoose warn about it on every start, so they are gone.
 //
-// This is enforced by MongoDB itself, not by our code. Two registrations
-// arriving at the exact same millisecond cannot both succeed.
-userSchema.index({ email: 1 }, { unique: true });
-userSchema.index({ mobile: 1 }, { unique: true });
+// Uniqueness is enforced by MongoDB itself, not by our code: two
+// registrations arriving in the same millisecond cannot both succeed.
 
 // --- Methods ---------------------------------------------------------------
 // Turn a plain password into a hash. Called when registering.

@@ -371,6 +371,30 @@ async function run() {
 const app = createApp();
 await connectDatabase();
 
+// Start from an empty database every time.
+//
+// With the in-memory database this is free — it is new anyway. With a real
+// one it matters: the previous run's accounts would still be there, and the
+// "successful registration" scenario would collide with its own leftovers.
+//
+// The name guard is the important part. This drops an entire database, so
+// it refuses to run against anything not clearly named as a test database —
+// pointing MONGODB_URI at `taskly` by mistake must not wipe real accounts.
+{
+  const { default: mongoose } = await import('mongoose');
+  const dbName = mongoose.connection.name || '';
+  const isMemory = Boolean(memoryServer);
+
+  if (!isMemory && !/(^|[_-])test$/.test(dbName)) {
+    console.error(`\n  Refusing to run: database "${dbName}" is not named as a test database.`);
+    console.error('  These tests erase everything in it first. Use a name ending in "_test",');
+    console.error('  for example MONGODB_URI=mongodb://127.0.0.1:27017/taskly_test\n');
+    process.exit(1);
+  }
+
+  await mongoose.connection.dropDatabase();
+}
+
 const server = app.listen(0);
 await new Promise((resolve) => server.once('listening', resolve));
 baseUrl = `http://127.0.0.1:${server.address().port}`;

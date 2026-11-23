@@ -28,10 +28,14 @@ async function start() {
   if (mail.ok) {
     console.log(`  Email ready — sending as ${env.smtp.fromAddress}`);
   } else {
+    // The hint comes from mailer.js, which works out which setting is at
+    // fault from the SMTP response — so it names the right provider instead
+    // of guessing.
     console.warn('\n  WARNING: email is not working. Registration will fail.');
-    console.warn(`  ${mail.message}`);
-    console.warn('  Check SMTP_USER and SMTP_PASS in server/.env.');
-    console.warn('  For Gmail this must be an app password, not your normal password.\n');
+    console.warn(`  ${mail.cause || mail.message}`);
+    if (mail.hint) console.warn(`  ${mail.hint}`);
+    console.warn(`  Server reported: ${mail.message}`);
+    console.warn('  Settings live in server/.env\n');
   }
 
   const app = createApp();

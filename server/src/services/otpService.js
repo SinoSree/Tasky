@@ -100,7 +100,7 @@ export async function issueOtp({ user, enforceCooldown = true }) {
   const codeHash = await bcrypt.hash(code, OTP_BCRYPT_ROUNDS);
   const expiresAt = new Date(Date.now() + env.otp.ttlMinutes * 60 * 1000);
 
-  await OtpToken.create({
+  const token = await OtpToken.create({
     userId: user._id,
     purpose: 'email_verification',
     codeHash,
@@ -113,7 +113,23 @@ export async function issueOtp({ user, enforceCooldown = true }) {
     ttlMinutes: env.otp.ttlMinutes,
   });
 
-  await sendMail({ to: user.email, subject, text, html });
+  // If the email cannot be delivered, this code must not survive: it would
+  // sit in the database as a code nobody has any way of knowing, while the
+  // user waits for a message that is never coming.
+  //
+  // The caller is told it failed, so nothing can report success for an
+  // email that was never sent.
+  try {
+    await sendMail({ to: user.email, subject, text, html });
+  } catch (err) {
+    await token.deleteOne();
+    return {
+      ok: false,
+      reason: 'mail_failed',
+      message: 'We could not send the verification email. Please try again shortly.',
+      detail: err.userMessage || 'The mail server rejected the message.',
+    };
+  }
 
   // The plain code is returned ONLY so automated tests can read it. It is
   // never put in an API response or written to a log.

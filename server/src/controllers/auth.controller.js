@@ -92,13 +92,23 @@ export async function register(req, res) {
   // If the email cannot be sent, the account is removed again. Leaving an
   // unverified account behind would block this person from retrying with
   // the same address.
+  //
+  // Nothing below this point reports success unless a message was genuinely
+  // handed to the mail server. Telling someone "check your email" for a
+  // message that was never sent leaves them waiting for nothing.
   let issued;
   try {
     issued = await issueOtp({ user, enforceCooldown: false });
   } catch (err) {
     await user.deleteOne();
-    console.error('  OTP email failed during registration:', err.message);
+    console.error('  Registration aborted — unexpected error issuing the code:', err.message);
     throw new ApiError(502, 'We could not send your verification email. Please try again.');
+  }
+
+  if (!issued.ok) {
+    await user.deleteOne();
+    // mailer.js has already logged the precise cause to the server console.
+    throw new ApiError(502, 'We could not send your verification email, so your account was not created. Please try again in a moment.');
   }
 
   res.status(201).json({
@@ -185,6 +195,12 @@ export async function resendOtp(req, res) {
   const result = await issueOtp({ user, enforceCooldown: true });
 
   if (!result.ok) {
+    // A delivery failure is the server's fault, not the user's, and is not
+    // a rate limit — so it must not be dressed up as one, and must never
+    // return the reassuring "a new code is on its way".
+    if (result.reason === 'mail_failed') {
+      return res.status(502).json({ ok: false, error: result.message, reason: result.reason });
+    }
     return res.status(429).json({
       ok: false,
       error: result.message,
