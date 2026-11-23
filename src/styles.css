@@ -617,3 +617,73 @@ button { font-family: inherit; font-size: inherit; cursor: pointer; }
 
 @media (max-width: 1100px) { .task-row-assignee { display: none; } }
 @media (max-width: 760px)  { .sync-error { margin: 12px 18px -4px; } }
+
+/* LEARN PAGE --------------------------------------------------------------
+   Styling for the React practice page. Self-contained, like the page itself:
+   delete this block and src/pages/Learn.jsx and nothing else notices. */
+.learn-intro {
+  font-size: 13.5px; color: var(--gray-600); line-height: 1.6;
+  margin: 0 0 16px; max-width: 62ch;
+}
+.learn-list { display: flex; flex-direction: column; gap: 8px; }
+.learn-row {
+  display: flex; align-items: center; gap: 12px;
+  padding: 12px 14px; background: var(--gray-25);
+  border: 1px solid var(--gray-200); border-radius: var(--radius);
+  transition: background .14s, border-color .14s;
+}
+.learn-row:hover { background: var(--gray-50); border-color: var(--gray-300); }
+.learn-row.is-done .learn-row-title { color: var(--gray-400); text-decoration: line-through; }
+.learn-row-title { flex: 1; font-size: 14px; font-weight: 550; color: var(--gray-800); }
+.learn-row-state {
+  font-size: 11px; font-weight: 600; letter-spacing: .03em; text-transform: uppercase;
+  color: var(--gray-500); background: var(--gray-100);
+  padding: 3px 8px; border-radius: 20px;
+}
+.learn-row.is-done .learn-row-state { color: var(--green-700); background: var(--green-50); }
+
+.learn-summary {
+  display: flex; align-items: flex-start; justify-content: space-between; gap: 18px;
+  margin-top: 18px; padding-top: 16px; border-top: 1px solid var(--gray-200);
+}
+.learn-summary-right { display: flex; align-items: center; gap: 12px; }
+.learn-count  { margin: 0; font-size: 18px; font-weight: 680; color: var(--gray-900); }
+.learn-clicks { margin: 0; font-size: 12.5px; color: var(--gray-500); white-space: nowrap; }
+.learn-hint   { margin: 3px 0 0; font-size: 12.5px; color: var(--gray-500); max-width: 52ch; }
+
+.learn-steps { margin: 0; padding-left: 20px; display: flex; flex-direction: column; gap: 9px; }
+.learn-steps li { font-size: 13.5px; color: var(--gray-600); line-height: 1.55; }
+.learn-steps strong { color: var(--gray-900); font-weight: 620; }
+
+.learn-try { margin: 14px 0 0; padding-left: 20px; display: flex; flex-direction: column; gap: 9px; }
+.learn-try li { font-size: 13.5px; color: var(--gray-600); line-height: 1.55; }
+
+.learn-note {
+  margin: 0; font-size: 13.5px; color: var(--gray-600);
+  line-height: 1.6; max-width: 70ch;
+}
+.learn-steps code, .learn-try code, .learn-note code {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 12.5px; background: var(--blue-50); color: var(--blue-700);
+  padding: 1.5px 5px; border-radius: 4px;
+}
+
+@media (max-width: 560px) {
+  .learn-summary { flex-direction: column; gap: 12px; }
+  .learn-row-state { display: none; }
+}
+
+/* AUTH — one-time code screen ---------------------------------------------- */
+.otp-input {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 26px; font-weight: 650; letter-spacing: 10px;
+  text-align: center; padding: 13px 10px;
+}
+.otp-input::placeholder { letter-spacing: 10px; color: var(--gray-300); }
+.otp-resend { margin-top: -2px; text-align: center; }
+.otp-resend .field-hint { margin: 0; }
+
+/* The auth screen stacks, so a note under the card sits under it rather than
+   beside it. (.auth-screen is a flex row by default.) */
+.auth-screen { flex-direction: column; gap: 14px; }
+.auth-screen .foot-note { text-align: center; max-width: 396px; }

@@ -32,6 +32,8 @@ src/lib/taskUtils.js
 src/lib/supabaseConfig.js
 src/lib/supabaseClient.js
 src/lib/repo.js
+src/lib/authConfig.js
+src/lib/apiClient.js
 src/context/AuthContext.jsx
 src/context/TaskContext.jsx
 src/components/Icon.jsx
@@ -47,6 +49,8 @@ src/components/TaskRow.jsx
 src/components/StatCard.jsx
 src/components/FilterBar.jsx
 src/components/UserMenu.jsx
+src/components/RegisterForm.jsx
+src/components/OtpScreen.jsx
 src/components/LoginScreen.jsx
 src/components/Sidebar.jsx
 src/components/Topbar.jsx
@@ -56,6 +60,7 @@ src/pages/KanbanBoard.jsx
 src/pages/CalendarView.jsx
 src/pages/Categories.jsx
 src/pages/Team.jsx
+src/pages/Learn.jsx
 src/App.jsx
 "
 
@@ -99,7 +104,7 @@ for f in $FILES; do
   sed -E \
     -e '/^[[:space:]]*import[[:space:]].*;[[:space:]]*$/d' \
     -e 's/^export default //' \
-    -e 's/^export (function|const|class) /\1 /' \
+    -e 's/^export (async function|function|const|let|class) /\1 /' \
     "$f" >> "$OUT"
   count=$((count + 1))
 done

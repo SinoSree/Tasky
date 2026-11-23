@@ -9,9 +9,19 @@ import { useAuth } from '../context/AuthContext.jsx';
 import { useTasks } from '../context/TaskContext.jsx';
 
 export default function UserMenu() {
-  const { displayName, user, signOut, cloud } = useAuth();
-  const { mode } = useTasks();
+  // Two different "modes" meet here, and confusing them shows the user the
+  // wrong thing:
+  //   authMode    how the ACCOUNT works   — api / cloud / demo
+  //   storageMode where the TASKS live    — cloud / local
+  // With the Express backend the account is real while tasks are still
+  // local, so the account label must not be taken from storage.
+  const { displayName, user, signOut, mode: authMode } = useAuth();
+  const { mode: storageMode } = useTasks();
   const [open, setOpen] = useState(false);
+
+  const accountLabel =
+    authMode === 'api'   ? 'Verified account' :
+    authMode === 'cloud' ? 'Cloud account'    : 'Demo mode';
 
   return (
     <div className="user-menu">
@@ -20,7 +30,9 @@ export default function UserMenu() {
           <p className="user-pop-name">{displayName}</p>
           {user?.email && <p className="user-pop-email">{user.email}</p>}
           <p className="user-pop-mode">
-            {mode === 'cloud' ? 'Synced to the cloud' : 'Saved in this browser only'}
+            {storageMode === 'cloud'
+              ? 'Tasks synced to the cloud'
+              : 'Tasks saved in this browser only'}
           </p>
           <button className="user-pop-signout" onClick={signOut}>
             <Icon name="close" size={14} /> Sign out
@@ -30,10 +42,10 @@ export default function UserMenu() {
 
       <button className="user-trigger" onClick={() => setOpen((o) => !o)}
               aria-expanded={open} aria-label="Account menu">
-        <Avatar name={displayName} color={cloud ? '#2563eb' : '#6b7280'} size={28} />
+        <Avatar name={displayName} color={authMode === 'demo' ? '#6b7280' : '#2563eb'} size={28} />
         <span className="user-trigger-text">
           <span className="user-trigger-name">{displayName}</span>
-          <span className="user-trigger-mode">{mode === 'cloud' ? 'Cloud account' : 'Demo mode'}</span>
+          <span className="user-trigger-mode">{accountLabel}</span>
         </span>
       </button>
     </div>

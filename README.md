@@ -351,3 +351,143 @@ Three bugs were found and fixed during this work:
 **Not yet tested:** the cloud path itself. It needs a real Supabase project,
 which requires your account. The code is written and reviewed, but until you
 add your keys and run the schema, treat cloud mode as unverified.
+
+---
+
+## Authentication backend (`server/`)
+
+Real accounts with email verification, built on Node + Express + MongoDB.
+The React app talks to it over HTTP; the browser never sees a password,
+a database or a mail credential.
+
+### What you must set up yourself
+
+Two accounts, both free. Nothing works until these are done.
+
+**1. MongoDB Atlas — the database**
+
+1. Sign up at <https://www.mongodb.com/cloud/atlas/register>
+2. Create a free **M0** cluster (any provider/region)
+3. **Database Access** → Add New Database User → pick a username and password
+   (write the password down; you will not see it again)
+4. **Network Access** → Add IP Address → *Allow access from anywhere*
+   while developing
+5. **Connect** → **Drivers** → copy the connection string
+
+It looks like this; replace `<password>`, and put `taskly` before the `?`:
+
+```
+mongodb+srv://USER:<password>@cluster0.xxxxx.mongodb.net/taskly?retryWrites=true&w=majority
+```
+
+**2. Gmail app password — sending the codes**
+
+A normal Gmail password will not work; Google blocks it for apps.
+
+1. Turn on 2-Step Verification: <https://myaccount.google.com/security>
+2. Go to <https://myaccount.google.com/apppasswords>
+3. Create one called "Taskly" and copy the 16 characters
+4. Paste it with no spaces
+
+### Then
+
+```bash
+cd server
+cp .env.example .env
+```
+
+Open `server/.env` and fill in `MONGODB_URI`, `SMTP_USER`, `SMTP_PASS` and
+`MAIL_FROM_ADDRESS`. Generate `JWT_SECRET` with:
+
+```bash
+node -e "console.log(require('crypto').randomBytes(48).toString('hex'))"
+```
+
+Start it:
+
+```bash
+cd server && npm start
+```
+
+A healthy start prints the database name, `Email ready`, and the port. Any
+missing or wrong setting is named explicitly instead of failing later.
+
+### Running the whole thing
+
+Two terminals:
+
+```bash
+cd server && npm start
+```
+
+```bash
+npm run dev
+```
+
+Then open <http://localhost:5173>.
+
+### Trying it without Atlas or Gmail
+
+```bash
+cd server && node tests/dev-server.js
+```
+
+Runs the real API against a temporary in-memory database, printing each
+verification code to the terminal instead of emailing it. Nothing is saved.
+Useful for working on the screens; not a substitute for the real thing.
+
+### Tests
+
+```bash
+cd server && npm test
+```
+
+Drives all 17 authentication scenarios through real HTTP — registration,
+every validation rule, duplicates, OTP expiry and reuse, login by email and
+by mobile, logout, and protected routes.
+
+### The endpoints
+
+| Method | Path | Purpose |
+|---|---|---|
+| POST | `/api/auth/register` | Create an account, email a code |
+| POST | `/api/auth/verify-email` | Check the code, activate, sign in |
+| POST | `/api/auth/resend-otp` | Send a fresh code (rate limited) |
+| POST | `/api/auth/login` | Email **or** mobile, plus password |
+| POST | `/api/auth/logout` | Clear the session cookie |
+| GET | `/api/auth/me` | The signed-in user (protected) |
+
+### Switching modes
+
+`src/lib/authConfig.js` is the only file to edit.
+
+| `API_BASE_URL` | Result |
+|---|---|
+| `'http://localhost:4000'` | This backend (local only) |
+| `''` | Falls back to Supabase, then demo mode |
+
+A `localhost` address switches itself off when the page is served from
+anywhere else, so the GitHub Pages build keeps working instead of showing a
+sign-in screen that cannot reach a server.
+
+### Security notes
+
+- Passwords hashed with bcrypt (12 rounds); never stored or logged in plain text
+- OTPs hashed too, expire in 5 minutes, single use, attempt-limited
+- Session held in an **httpOnly** cookie — JavaScript cannot read it
+- Rate limits on registration, login, and both OTP routes
+- Helmet headers, strict CORS allow-list, 10kb body cap
+- Failed logins return one generic message, so the API cannot be used to
+  discover which emails are registered
+- Validation runs on the server, not only in the browser
+
+**Known limitation:** the password rule is numbers-only, minimum 8 digits, as
+specified. That is 100 million combinations — safe against online guessing
+because of bcrypt and rate limiting, weaker against an offline attack on a
+leaked database. Raising the minimum to 10 digits, or allowing letters, is a
+one-line change in `server/src/validators/authSchemas.js` and the matching
+check in `src/components/RegisterForm.jsx`.
+
+**Tasks are not yet in MongoDB.** This backend handles accounts only; tasks
+still save to `localStorage`. Moving them to the database is the natural
+next step.

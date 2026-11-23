@@ -627,6 +627,76 @@ button { font-family: inherit; font-size: inherit; cursor: pointer; }
 
 @media (max-width: 1100px) { .task-row-assignee { display: none; } }
 @media (max-width: 760px)  { .sync-error { margin: 12px 18px -4px; } }
+
+/* LEARN PAGE --------------------------------------------------------------
+   Styling for the React practice page. Self-contained, like the page itself:
+   delete this block and src/pages/Learn.jsx and nothing else notices. */
+.learn-intro {
+  font-size: 13.5px; color: var(--gray-600); line-height: 1.6;
+  margin: 0 0 16px; max-width: 62ch;
+}
+.learn-list { display: flex; flex-direction: column; gap: 8px; }
+.learn-row {
+  display: flex; align-items: center; gap: 12px;
+  padding: 12px 14px; background: var(--gray-25);
+  border: 1px solid var(--gray-200); border-radius: var(--radius);
+  transition: background .14s, border-color .14s;
+}
+.learn-row:hover { background: var(--gray-50); border-color: var(--gray-300); }
+.learn-row.is-done .learn-row-title { color: var(--gray-400); text-decoration: line-through; }
+.learn-row-title { flex: 1; font-size: 14px; font-weight: 550; color: var(--gray-800); }
+.learn-row-state {
+  font-size: 11px; font-weight: 600; letter-spacing: .03em; text-transform: uppercase;
+  color: var(--gray-500); background: var(--gray-100);
+  padding: 3px 8px; border-radius: 20px;
+}
+.learn-row.is-done .learn-row-state { color: var(--green-700); background: var(--green-50); }
+
+.learn-summary {
+  display: flex; align-items: flex-start; justify-content: space-between; gap: 18px;
+  margin-top: 18px; padding-top: 16px; border-top: 1px solid var(--gray-200);
+}
+.learn-summary-right { display: flex; align-items: center; gap: 12px; }
+.learn-count  { margin: 0; font-size: 18px; font-weight: 680; color: var(--gray-900); }
+.learn-clicks { margin: 0; font-size: 12.5px; color: var(--gray-500); white-space: nowrap; }
+.learn-hint   { margin: 3px 0 0; font-size: 12.5px; color: var(--gray-500); max-width: 52ch; }
+
+.learn-steps { margin: 0; padding-left: 20px; display: flex; flex-direction: column; gap: 9px; }
+.learn-steps li { font-size: 13.5px; color: var(--gray-600); line-height: 1.55; }
+.learn-steps strong { color: var(--gray-900); font-weight: 620; }
+
+.learn-try { margin: 14px 0 0; padding-left: 20px; display: flex; flex-direction: column; gap: 9px; }
+.learn-try li { font-size: 13.5px; color: var(--gray-600); line-height: 1.55; }
+
+.learn-note {
+  margin: 0; font-size: 13.5px; color: var(--gray-600);
+  line-height: 1.6; max-width: 70ch;
+}
+.learn-steps code, .learn-try code, .learn-note code {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 12.5px; background: var(--blue-50); color: var(--blue-700);
+  padding: 1.5px 5px; border-radius: 4px;
+}
+
+@media (max-width: 560px) {
+  .learn-summary { flex-direction: column; gap: 12px; }
+  .learn-row-state { display: none; }
+}
+
+/* AUTH — one-time code screen ---------------------------------------------- */
+.otp-input {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 26px; font-weight: 650; letter-spacing: 10px;
+  text-align: center; padding: 13px 10px;
+}
+.otp-input::placeholder { letter-spacing: 10px; color: var(--gray-300); }
+.otp-resend { margin-top: -2px; text-align: center; }
+.otp-resend .field-hint { margin: 0; }
+
+/* The auth screen stacks, so a note under the card sits under it rather than
+   beside it. (.auth-screen is a flex row by default.) */
+.auth-screen { flex-direction: column; gap: 14px; }
+.auth-screen .foot-note { text-align: center; max-width: 396px; }
 </style>
 </head>
 <body>
@@ -1170,38 +1240,182 @@ function getRepo(user) {
   return makeLocalRepo();
 }
 
+/* ===== src/lib/authConfig.js ===== */
+// ---------------------------------------------------------------------------
+// authConfig.js — where the authentication backend lives.
+//
+// THIS IS THE ONLY FILE YOU EDIT to switch the app between its three modes.
+//
+//   API_BASE_URL = 'http://localhost:4000'   → your own Express backend
+//   API_BASE_URL = ''  and supabase filled   → Supabase
+//   API_BASE_URL = ''  and supabase empty    → demo mode (no password)
+//
+// Leave it empty and nothing about the app changes: the Supabase and demo
+// paths you already had keep working exactly as before.
+//
+// No secret belongs here. This file ships to the browser, where anyone can
+// read it. It holds an address, nothing more — passwords, database details
+// and mail credentials all stay in server/.env on the server.
+// ---------------------------------------------------------------------------
+
+const API_BASE_URL = 'http://localhost:4000';
+
+// A localhost address only works on this machine. If the very same bundle is
+// opened from GitHub Pages, calls to it would fail and the site would show a
+// sign-in screen nobody could get past — so API mode switches itself off
+// there and the app falls back to Supabase or demo mode.
+//
+// When you deploy the backend for real, put its public https address above
+// and this guard steps aside by itself.
+const isLocalAddress = (url) => /^https?:\/\/(localhost|127\.0\.0\.1|\[::1\])(:|\/|$)/.test(url);
+
+const pageIsLocal =
+  typeof window === 'undefined' ||
+  ['localhost', '127.0.0.1', '[::1]', ''].includes(window.location.hostname);
+
+const isApiConfigured = () =>
+  Boolean(API_BASE_URL) && (!isLocalAddress(API_BASE_URL) || pageIsLocal);
+
+// Builds a full URL for an endpoint: apiUrl('/api/auth/login')
+const apiUrl = (path) => `${API_BASE_URL.replace(/\/$/, '')}${path}`;
+
+/* ===== src/lib/apiClient.js ===== */
+// ---------------------------------------------------------------------------
+// apiClient.js — one place that talks to the backend.
+//
+// WHY WRAP `fetch` AT ALL?
+// Three things must be right on every single call, and forgetting any one of
+// them causes a confusing bug:
+//
+//   1. credentials: 'include'  — without it the browser does not send the
+//      login cookie, and every protected request fails as "not signed in"
+//   2. Content-Type: application/json — without it Express cannot read the body
+//   3. turning a failed response into a usable error rather than a crash
+//
+// Doing it once here means no screen has to remember.
+// ---------------------------------------------------------------------------
+
+/**
+ * Always resolves — it never throws.
+ *
+ * Returns { ok, status, data, error, fieldErrors }:
+ *   ok           did the request succeed?
+ *   data         the parsed JSON body
+ *   error        a sentence safe to show the user
+ *   fieldErrors  { email: '…', password: '…' } for forms, when present
+ *
+ * Returning errors instead of throwing means callers use plain `if`
+ * statements rather than wrapping every call in try/catch.
+ */
+async function apiRequest(path, { method = 'GET', body } = {}) {
+  let response;
+
+  try {
+    response = await fetch(apiUrl(path), {
+      method,
+      // Send and accept cookies, including across origins. This is the line
+      // that makes the httpOnly login cookie work.
+      credentials: 'include',
+      headers: body ? { 'Content-Type': 'application/json' } : undefined,
+      body: body ? JSON.stringify(body) : undefined,
+    });
+  } catch {
+    // fetch only rejects when the request never completed: server down,
+    // wrong port, no network, or blocked by CORS.
+    return {
+      ok: false,
+      status: 0,
+      data: null,
+      error: 'Cannot reach the server. Is it running? (cd server && npm start)',
+      fieldErrors: null,
+      offline: true,
+    };
+  }
+
+  // A 500 that returns an HTML error page would break JSON parsing, so this
+  // is guarded too.
+  let data = null;
+  try {
+    data = await response.json();
+  } catch {
+    data = null;
+  }
+
+  if (!response.ok || data?.ok === false) {
+    return {
+      ok: false,
+      status: response.status,
+      data,
+      error: data?.error || `Request failed (${response.status}).`,
+      fieldErrors: data?.fieldErrors || null,
+      reason: data?.reason,
+      retryAfterSeconds: data?.retryAfterSeconds,
+    };
+  }
+
+  return { ok: true, status: response.status, data, error: null, fieldErrors: null };
+}
+
+const apiGet = (path) => apiRequest(path);
+const apiPost = (path, body) => apiRequest(path, { method: 'POST', body });
+
 /* ===== src/context/AuthContext.jsx ===== */
 // ---------------------------------------------------------------------------
 // AuthContext.jsx
 //
-// Handles "who is signed in". It has two modes and hides the difference from
-// the rest of the app:
+// Handles "who is signed in". It has THREE modes and hides the difference
+// from the rest of the app:
 //
-//   DEMO MODE  (supabaseConfig.js is empty)
+//   API MODE   (authConfig.js has API_BASE_URL)
+//     Your own Express + MongoDB backend. Real accounts, real passwords,
+//     email verification by one-time code, httpOnly session cookie.
+//
+//   CLOUD MODE (supabaseConfig.js is filled in)
+//     Supabase accounts. Unchanged from before.
+//
+//   DEMO MODE  (neither is configured)
 //     A fake local sign-in. Pick a display name, everything saves to this
 //     browser. No password, no security — it just lets the app work.
 //
-//   CLOUD MODE (supabaseConfig.js is filled in)
-//     Real Supabase accounts: email + password, email confirmation,
-//     password reset, and data synced across devices.
-//
-// Every component just calls useAuth() and reads { user, signIn, signOut }.
+// The first one configured wins. Every component just calls useAuth().
 // ---------------------------------------------------------------------------
 
 const AuthContext = createContext(null);
 const DEMO_USER_KEY = 'tm.demoUser.v1';
 
 function AuthProvider({ children }) {
-  const cloud = isCloudConfigured();
+  // Work out the mode once. API first, then Supabase, then demo.
+  const mode = isApiConfigured() ? 'api' : isCloudConfigured() ? 'cloud' : 'demo';
+  const cloud = mode === 'cloud';
+  const api = mode === 'api';
 
   const [user, setUser]       = useState(null);
   const [loading, setLoading] = useState(true);   // true until we know
   const [error, setError]     = useState('');
   const [notice, setNotice]   = useState('');     // e.g. "check your email"
 
+  // API mode only: the address awaiting a code. Set by register(), and by a
+  // login attempt on an unverified account, so the app can open the code
+  // screen without asking the user to retype anything.
+  const [pendingEmail, setPendingEmail] = useState('');
+
   // --- work out who is signed in, once, on startup ------------------------
   useEffect(() => {
     let cancelled = false;
+
+    if (api) {
+      // The session lives in an httpOnly cookie that JavaScript cannot read,
+      // so the only way to know is to ask the server.
+      apiGet('/api/auth/me').then((result) => {
+        if (cancelled) return;
+        setUser(result.ok ? result.data.user : null);
+        // A 401 here is normal (nobody signed in) and must not look like a
+        // failure. A server that is down, however, is worth saying out loud.
+        if (!result.ok && result.offline) setError(result.error);
+        setLoading(false);
+      });
+      return () => { cancelled = true; };
+    }
 
     if (!cloud) {
       // Demo mode: read the saved local profile, if any.
@@ -1231,22 +1445,100 @@ function AuthProvider({ children }) {
       cancelled = true;
       sub?.subscription?.unsubscribe();   // always clean up listeners
     };
-  }, [cloud]);
+  }, [cloud, api]);
 
-  // --- actions ------------------------------------------------------------
+  // --- API mode actions ---------------------------------------------------
 
-  const signIn = useCallback(async (email, password) => {
+  // Create an account. On success the backend has emailed a code and the
+  // app should show the verification screen — the account cannot sign in
+  // until that code is entered.
+  const register = useCallback(async (values) => {
     setError(''); setNotice('');
+    const result = await apiPost('/api/auth/register', values);
+
+    if (!result.ok) {
+      setError(result.error);
+      // The address is registered but was never verified — almost always the
+      // same person coming back. Send them to the code screen rather than
+      // leaving them stuck on a form they cannot complete.
+      if (result.reason === 'unverified_exists') {
+        setPendingEmail(result.data?.email || values.email);
+      }
+      return { ok: false, fieldErrors: result.fieldErrors, reason: result.reason };
+    }
+
+    setPendingEmail(result.data.email);
+    setNotice(result.data.message);
+    return { ok: true, email: result.data.email };
+  }, []);
+
+  // Submit the 6-digit code. The backend signs the user in on success, so
+  // there is nothing more for them to do.
+  const verifyEmail = useCallback(async (email, code) => {
+    setError(''); setNotice('');
+    const result = await apiPost('/api/auth/verify-email', { email, code });
+
+    if (!result.ok) {
+      setError(result.error);
+      return { ok: false, reason: result.reason };
+    }
+
+    setUser(result.data.user);
+    setPendingEmail('');
+    return { ok: true };
+  }, []);
+
+  const resendOtp = useCallback(async (email) => {
+    setError(''); setNotice('');
+    const result = await apiPost('/api/auth/resend-otp', { email });
+
+    if (!result.ok) {
+      setError(result.error);
+      return { ok: false, retryAfterSeconds: result.retryAfterSeconds };
+    }
+
+    setNotice(result.data.message);
+    return { ok: true };
+  }, []);
+
+  // --- actions shared across modes ----------------------------------------
+
+  // In API mode `emailOrIdentifier` may be an email OR a mobile number —
+  // the backend works out which.
+  const signIn = useCallback(async (emailOrIdentifier, password) => {
+    setError(''); setNotice('');
+
+    if (api) {
+      const result = await apiPost('/api/auth/login', {
+        identifier: (emailOrIdentifier || '').trim(),
+        password,
+      });
+
+      if (!result.ok) {
+        setError(result.error);
+        // An unverified account is not a failed login: send them to the
+        // code screen instead of leaving them stuck.
+        if (result.reason === 'email_not_verified') {
+          setPendingEmail(result.data?.email || '');
+          return false;
+        }
+        return false;
+      }
+
+      setUser(result.data.user);
+      return true;
+    }
+
     const supabase = getSupabase();
     if (!supabase) { setError('Cloud mode is not configured.'); return false; }
 
     const { data, error: err } = await supabase.auth.signInWithPassword({
-      email: email.trim(), password,
+      email: (emailOrIdentifier || '').trim(), password,
     });
     if (err) { setError(friendlyAuthError(err)); return false; }
     setUser(data.user);
     return true;
-  }, []);
+  }, [api]);
 
   const signUp = useCallback(async (email, password, fullName) => {
     setError(''); setNotice('');
@@ -1303,29 +1595,38 @@ function AuthProvider({ children }) {
 
   const signOut = useCallback(async () => {
     setError(''); setNotice('');
-    if (cloud) {
+    if (api) {
+      // The cookie is httpOnly, so only the server can remove it.
+      await apiPost('/api/auth/logout');
+    } else if (cloud) {
       const supabase = getSupabase();
       if (supabase) await supabase.auth.signOut();
     } else {
       saveJSON(DEMO_USER_KEY, null);
     }
     setUser(null);
-  }, [cloud]);
+    setPendingEmail('');
+  }, [cloud, api]);
 
-  // A display name that always returns something sensible.
+  // A display name that always returns something sensible, whichever shape
+  // of user object the current mode produces.
   const displayName =
-    user?.user_metadata?.full_name?.trim() ||
+    user?.username ||                               // API mode
+    user?.user_metadata?.full_name?.trim() ||       // Supabase / demo
     user?.email?.split('@')[0] ||
     'User';
 
   const value = useMemo(() => ({
-    user, loading, error, notice, cloud,
+    user, loading, error, notice, cloud, api, mode, pendingEmail,
     isSignedIn: user !== null,
     displayName,
     signIn, signUp, signInDemo, signOut, resetPassword,
+    register, verifyEmail, resendOtp,
+    setPendingEmail,
     clearMessages: () => { setError(''); setNotice(''); },
-  }), [user, loading, error, notice, cloud, displayName,
-       signIn, signUp, signInDemo, signOut, resetPassword]);
+  }), [user, loading, error, notice, cloud, api, mode, pendingEmail, displayName,
+       signIn, signUp, signInDemo, signOut, resetPassword,
+       register, verifyEmail, resendOtp]);
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
@@ -1608,6 +1909,7 @@ const PATHS = {
   clock:     'M12 22a10 10 0 1 0 0-20 10 10 0 0 0 0 20zM12 6v6l4 2',
   alert:     'M12 9v4M12 17h.01M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z',
   trending:  'M23 6l-9.5 9.5-5-5L1 18',
+  book:      'M4 4h11a3 3 0 0 1 3 3v13a2 2 0 0 0-2-2H4zM4 4v16M18 7h2v13H6',
   menu:      'M3 6h18M3 12h18M3 18h18',
   inbox:     'M22 12h-6l-2 3h-4l-2-3H2M5.5 5h13l3.5 7v6a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2v-6z',
   users:     'M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM22 21v-2a4 4 0 0 0-3-3.9M16 3.1a4 4 0 0 1 0 7.8',
@@ -2097,9 +2399,19 @@ function FilterBar({ filters, onChange, categories, members = [], showStatus = t
 // ---------------------------------------------------------------------------
 
 function UserMenu() {
-  const { displayName, user, signOut, cloud } = useAuth();
-  const { mode } = useTasks();
+  // Two different "modes" meet here, and confusing them shows the user the
+  // wrong thing:
+  //   authMode    how the ACCOUNT works   — api / cloud / demo
+  //   storageMode where the TASKS live    — cloud / local
+  // With the Express backend the account is real while tasks are still
+  // local, so the account label must not be taken from storage.
+  const { displayName, user, signOut, mode: authMode } = useAuth();
+  const { mode: storageMode } = useTasks();
   const [open, setOpen] = useState(false);
+
+  const accountLabel =
+    authMode === 'api'   ? 'Verified account' :
+    authMode === 'cloud' ? 'Cloud account'    : 'Demo mode';
 
   return (
     <div className="user-menu">
@@ -2108,7 +2420,9 @@ function UserMenu() {
           <p className="user-pop-name">{displayName}</p>
           {user?.email && <p className="user-pop-email">{user.email}</p>}
           <p className="user-pop-mode">
-            {mode === 'cloud' ? 'Synced to the cloud' : 'Saved in this browser only'}
+            {storageMode === 'cloud'
+              ? 'Tasks synced to the cloud'
+              : 'Tasks saved in this browser only'}
           </p>
           <button className="user-pop-signout" onClick={signOut}>
             <Icon name="close" size={14} /> Sign out
@@ -2118,12 +2432,341 @@ function UserMenu() {
 
       <button className="user-trigger" onClick={() => setOpen((o) => !o)}
               aria-expanded={open} aria-label="Account menu">
-        <Avatar name={displayName} color={cloud ? '#2563eb' : '#6b7280'} size={28} />
+        <Avatar name={displayName} color={authMode === 'demo' ? '#6b7280' : '#2563eb'} size={28} />
         <span className="user-trigger-text">
           <span className="user-trigger-name">{displayName}</span>
-          <span className="user-trigger-mode">{mode === 'cloud' ? 'Cloud account' : 'Demo mode'}</span>
+          <span className="user-trigger-mode">{accountLabel}</span>
         </span>
       </button>
+    </div>
+  );
+}
+
+/* ===== src/components/RegisterForm.jsx ===== */
+// ---------------------------------------------------------------------------
+// RegisterForm.jsx — the "create account" form (API mode only).
+//
+// The checks here mirror the server's rules in server/src/validators.
+// That duplication is deliberate, not an accident:
+//
+//   in the browser → instant, friendly feedback while typing
+//   on the server  → the rule that actually counts
+//
+// Anyone can bypass this file with DevTools. Nobody can bypass the server.
+// If the two ever disagree, the server's answer arrives as `fieldErrors`
+// and is shown in exactly the same place.
+// ---------------------------------------------------------------------------
+
+const EMPTY = { username: '', email: '', mobile: '', password: '', confirmPassword: '' };
+
+// Same rules as the backend, written for speed rather than completeness —
+// the server does the thorough version (including real phone validation).
+function checkField(name, value, all) {
+  const v = (value || '').trim();
+
+  switch (name) {
+    case 'username':
+      if (!v) return 'Username is required.';
+      if (v.length < 3) return 'Username must be at least 3 characters.';
+      if (v.length > 20) return 'Username cannot be longer than 20 characters.';
+      if (!/^[A-Za-z]+$/.test(v)) return 'Username can only contain English letters (A–Z).';
+      return '';
+
+    case 'email':
+      if (!v) return 'Email is required.';
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v)) return 'Enter a valid email address.';
+      return '';
+
+    case 'mobile':
+      if (!v) return 'Mobile number is required.';
+      if (!v.startsWith('+')) return 'Include the country code, starting with + (e.g. +919876543210).';
+      if (!/^\+\d[\d\s-]{6,}$/.test(v)) return 'Enter a valid mobile number.';
+      return '';
+
+    case 'password':
+      if (!value) return 'Password is required.';
+      if (!/^\d+$/.test(value)) return 'Password must contain numbers only.';
+      if (value.length < 8) return 'Password must be at least 8 digits.';
+      return '';
+
+    case 'confirmPassword':
+      if (!value) return 'Confirm your password.';
+      if (value !== all.password) return 'Passwords do not match.';
+      return '';
+
+    default:
+      return '';
+  }
+}
+
+function RegisterForm({ onSwitchToSignIn }) {
+  const { register, error, clearMessages } = useAuth();
+
+  const [values, setValues] = useState(EMPTY);
+  const [errors, setErrors] = useState({});
+  // Which fields the user has finished with. Without this, an error appears
+  // on "email" the moment they type the first letter, which feels hostile.
+  const [touched, setTouched] = useState({});
+  const [busy, setBusy] = useState(false);
+
+  const setField = (name) => (e) => {
+    const next = { ...values, [name]: e.target.value };
+    setValues(next);
+    clearMessages();
+
+    // Re-check only fields already blurred, so messages correct themselves
+    // live but never appear early.
+    if (touched[name]) {
+      setErrors((prev) => ({ ...prev, [name]: checkField(name, next[name], next) }));
+    }
+    // Typing a new password should refresh the confirm message too.
+    if (name === 'password' && touched.confirmPassword) {
+      setErrors((prev) => ({
+        ...prev,
+        confirmPassword: checkField('confirmPassword', next.confirmPassword, next),
+      }));
+    }
+  };
+
+  const handleBlur = (name) => () => {
+    setTouched((prev) => ({ ...prev, [name]: true }));
+    setErrors((prev) => ({ ...prev, [name]: checkField(name, values[name], values) }));
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    // Check everything, not just what was touched — someone can submit with
+    // Enter without ever leaving the first field.
+    const found = {};
+    for (const name of Object.keys(EMPTY)) {
+      const message = checkField(name, values[name], values);
+      if (message) found[name] = message;
+    }
+    setTouched(Object.fromEntries(Object.keys(EMPTY).map((k) => [k, true])));
+    setErrors(found);
+    if (Object.keys(found).length > 0) return;
+
+    setBusy(true);
+    const result = await register(values);
+    setBusy(false);
+
+    // The server found something we did not — a duplicate email, say, which
+    // only it can know about.
+    if (!result.ok && result.fieldErrors) setErrors(result.fieldErrors);
+  };
+
+  const field = (name, label, props = {}) => (
+    <div className="field">
+      <label className="field-label" htmlFor={`reg-${name}`}>{label}</label>
+      <input
+        id={`reg-${name}`}
+        className={`input ${errors[name] ? 'input-error' : ''}`}
+        value={values[name]}
+        onChange={setField(name)}
+        onBlur={handleBlur(name)}
+        disabled={busy}
+        {...props}
+      />
+      {errors[name]
+        ? <p className="field-error">{errors[name]}</p>
+        : props.hint && <p className="field-hint">{props.hint}</p>}
+    </div>
+  );
+
+  return (
+    <form className="auth-form" onSubmit={handleSubmit} noValidate>
+      {field('username', 'Username', {
+        placeholder: 'Sino',
+        autoComplete: 'username',
+        hint: 'English letters only, 3–20 characters.',
+      })}
+
+      {field('email', 'Email', {
+        type: 'email',
+        placeholder: 'you@example.com',
+        autoComplete: 'email',
+      })}
+
+      {field('mobile', 'Mobile number', {
+        type: 'tel',
+        placeholder: '+919876543210',
+        autoComplete: 'tel',
+        hint: 'Include your country code.',
+      })}
+
+      {field('password', 'Password', {
+        type: 'password',
+        placeholder: '••••••••',
+        autoComplete: 'new-password',
+        inputMode: 'numeric',
+        hint: 'Numbers only, at least 8 digits.',
+      })}
+
+      {field('confirmPassword', 'Confirm password', {
+        type: 'password',
+        placeholder: '••••••••',
+        autoComplete: 'new-password',
+        inputMode: 'numeric',
+      })}
+
+      {/* Errors the server reported about the whole form, not one field. */}
+      {error && (
+        <p className="auth-msg auth-msg-error">
+          <Icon name="alert" size={15} /> {error}
+        </p>
+      )}
+
+      <Button type="submit" variant="primary" className="auth-submit" disabled={busy}>
+        {busy ? 'Creating account…' : 'Create account'}
+      </Button>
+
+      <div className="auth-links">
+        <button type="button" className="link-btn" onClick={onSwitchToSignIn} disabled={busy}>
+          Already have an account? Sign in
+        </button>
+      </div>
+    </form>
+  );
+}
+
+/* ===== src/components/OtpScreen.jsx ===== */
+// ---------------------------------------------------------------------------
+// OtpScreen.jsx — "enter the 6-digit code we emailed you".
+//
+// Shown after registering, and also when someone with an unverified account
+// tries to sign in. The account genuinely cannot be used until this passes:
+// the check is on the server, not here.
+//
+// The countdown is a courtesy. The server enforces the real cooldown and
+// returns 429 if asked too soon, so a user editing this page gains nothing.
+// ---------------------------------------------------------------------------
+
+const RESEND_SECONDS = 60;
+
+function OtpScreen({ email, onBack }) {
+  const { verifyEmail, resendOtp, error, notice, clearMessages } = useAuth();
+
+  const [code, setCode] = useState('');
+  const [busy, setBusy] = useState(false);
+  const [resending, setResending] = useState(false);
+  const [secondsLeft, setSecondsLeft] = useState(RESEND_SECONDS);
+  const inputRef = useRef(null);
+
+  // Put the cursor in the box on arrival — the only thing to do here.
+  useEffect(() => { inputRef.current?.focus(); }, []);
+
+  // One timer, cleaned up when the screen closes. Without the cleanup it
+  // would keep ticking after the component is gone.
+  useEffect(() => {
+    if (secondsLeft <= 0) return undefined;
+    const id = setInterval(() => setSecondsLeft((n) => (n > 0 ? n - 1 : 0)), 1000);
+    return () => clearInterval(id);
+  }, [secondsLeft]);
+
+  // Digits only, six at most. Stops most typos before they reach the server.
+  const handleChange = (e) => {
+    clearMessages();
+    setCode(e.target.value.replace(/\D/g, '').slice(0, 6));
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (code.length !== 6) return;
+    setBusy(true);
+    await verifyEmail(email, code);
+    setBusy(false);
+    // On success AuthContext sets the user and this screen unmounts, so
+    // there is nothing to do here. On failure the error is already shown.
+  };
+
+  const handleResend = async () => {
+    setResending(true);
+    const result = await resendOtp(email);
+    setResending(false);
+    setCode('');
+    // Restart the countdown from the server's answer when it gave one.
+    setSecondsLeft(result.retryAfterSeconds || RESEND_SECONDS);
+    inputRef.current?.focus();
+  };
+
+  return (
+    <div className="auth-screen">
+      <div className="auth-card">
+        <div className="auth-brand">
+          <div className="brand-mark brand-mark-lg">T</div>
+          <h1 className="auth-title">Check your email</h1>
+          <p className="auth-sub">
+            We sent a 6-digit code to <strong>{email}</strong>
+          </p>
+        </div>
+
+        <form className="auth-form" onSubmit={handleSubmit} noValidate>
+          <div className="field">
+            <label className="field-label" htmlFor="otp-code">Verification code</label>
+            <input
+              id="otp-code"
+              ref={inputRef}
+              className={`input otp-input ${error ? 'input-error' : ''}`}
+              value={code}
+              onChange={handleChange}
+              placeholder="000000"
+              inputMode="numeric"
+              autoComplete="one-time-code"
+              maxLength={6}
+              disabled={busy}
+            />
+            <p className="field-hint">The code expires 5 minutes after it was sent.</p>
+          </div>
+
+          {error && (
+            <p className="auth-msg auth-msg-error">
+              <Icon name="alert" size={15} /> {error}
+            </p>
+          )}
+          {notice && !error && (
+            <p className="auth-msg auth-msg-ok">
+              <Icon name="check" size={15} /> {notice}
+            </p>
+          )}
+
+          <Button
+            type="submit"
+            variant="primary"
+            className="auth-submit"
+            disabled={busy || code.length !== 6}
+          >
+            {busy ? 'Verifying…' : 'Verify email'}
+          </Button>
+
+          <div className="otp-resend">
+            {secondsLeft > 0 ? (
+              <span className="field-hint">
+                Didn't get it? You can ask for another in {secondsLeft}s.
+              </span>
+            ) : (
+              <button
+                type="button"
+                className="link-btn"
+                onClick={handleResend}
+                disabled={resending}
+              >
+                {resending ? 'Sending…' : 'Send a new code'}
+              </button>
+            )}
+          </div>
+
+          <div className="auth-links">
+            <button type="button" className="link-btn" onClick={onBack} disabled={busy}>
+              Use a different email
+            </button>
+          </div>
+        </form>
+      </div>
+
+      <p className="foot-note">
+        Check your spam folder if it hasn't arrived after a minute.
+      </p>
     </div>
   );
 }
@@ -2132,23 +2775,36 @@ function UserMenu() {
 // ---------------------------------------------------------------------------
 // LoginScreen.jsx — shown whenever nobody is signed in.
 //
-// It renders one of two things depending on whether supabaseConfig.js has
-// been filled in:
-//   cloud mode → real email + password sign in / sign up / reset
+// It renders one of three things, depending on how the app is configured:
+//   API mode   → sign in with email OR mobile, register, verify by code
+//   cloud mode → Supabase email + password sign in / sign up / reset
 //   demo mode  → just "what should we call you?"
+//
+// In API mode this component is really a tiny router between three screens:
+//   signin → register → verify
 // ---------------------------------------------------------------------------
 
 function LoginScreen() {
-  const { cloud, signIn, signUp, signInDemo, resetPassword, error, notice, clearMessages } = useAuth();
+  const {
+    cloud, api, signIn, signUp, signInDemo, resetPassword,
+    error, notice, clearMessages, pendingEmail, setPendingEmail,
+  } = useAuth();
 
   const [mode, setMode] = useState('signin');       // 'signin' | 'signup'
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [fullName, setFullName] = useState('');
   const [demoName, setDemoName] = useState('');
+  const [identifier, setIdentifier] = useState('');  // API mode: email OR mobile
   const [busy, setBusy] = useState(false);
 
   const switchMode = (next) => { setMode(next); clearMessages(); };
+
+  // API mode: registering, or signing in to an unverified account, sets
+  // pendingEmail — which means "show the code screen next".
+  useEffect(() => {
+    if (api && pendingEmail) setMode('verify');
+  }, [api, pendingEmail]);
 
   const handleCloudSubmit = async (e) => {
     e.preventDefault();
@@ -2158,10 +2814,33 @@ function LoginScreen() {
     setBusy(false);
   };
 
+  const handleApiSignIn = async (e) => {
+    e.preventDefault();
+    setBusy(true);
+    await signIn(identifier, password);
+    setBusy(false);
+  };
+
   const handleDemoSubmit = (e) => {
     e.preventDefault();
     signInDemo(demoName);
   };
+
+  // --- API mode: the code screen takes over the whole view ----------------
+  if (api && mode === 'verify' && pendingEmail) {
+    return (
+      <OtpScreen
+        email={pendingEmail}
+        onBack={() => { setPendingEmail(''); setMode('signin'); clearMessages(); }}
+      />
+    );
+  }
+
+  const subtitle = api
+    ? (mode === 'signup' ? 'Create your Taskly account' : 'Sign in to your account')
+    : cloud
+      ? (mode === 'signin' ? 'Sign in to your account' : 'Create your account')
+      : 'Choose a name to get started';
 
   return (
     <div className="auth-screen">
@@ -2169,17 +2848,53 @@ function LoginScreen() {
         <div className="auth-brand">
           <div className="brand-mark brand-mark-lg">T</div>
           <h1 className="auth-title">Taskly</h1>
-          <p className="auth-sub">
-            {cloud
-              ? (mode === 'signin' ? 'Sign in to your account' : 'Create your account')
-              : 'Choose a name to get started'}
-          </p>
+          <p className="auth-sub">{subtitle}</p>
         </div>
 
-        {error  && <div className="auth-msg auth-msg-error"><Icon name="alert" size={15} />{error}</div>}
-        {notice && <div className="auth-msg auth-msg-ok"><Icon name="check" size={15} />{notice}</div>}
+        {/* The register form shows its own errors beside each field. */}
+        {!(api && mode === 'signup') && error && (
+          <div className="auth-msg auth-msg-error"><Icon name="alert" size={15} />{error}</div>
+        )}
+        {!(api && mode === 'signup') && notice && (
+          <div className="auth-msg auth-msg-ok"><Icon name="check" size={15} />{notice}</div>
+        )}
 
-        {cloud ? (
+        {api ? (
+          mode === 'signup' ? (
+            <RegisterForm onSwitchToSignIn={() => switchMode('signin')} />
+          ) : (
+            <form className="auth-form" onSubmit={handleApiSignIn} noValidate>
+              <div className="field">
+                <label className="field-label" htmlFor="identifier">Email or mobile number</label>
+                <input
+                  id="identifier" className="input" value={identifier} required autoFocus
+                  autoComplete="username" placeholder="you@example.com or +919876543210"
+                  onChange={(e) => { setIdentifier(e.target.value); clearMessages(); }}
+                />
+                <p className="field-hint">Sign in with whichever you registered.</p>
+              </div>
+
+              <div className="field">
+                <label className="field-label" htmlFor="password">Password</label>
+                <input
+                  id="password" type="password" className="input" value={password} required
+                  autoComplete="current-password" inputMode="numeric" placeholder="••••••••"
+                  onChange={(e) => { setPassword(e.target.value); clearMessages(); }}
+                />
+              </div>
+
+              <Button type="submit" variant="primary" className="auth-submit" disabled={busy}>
+                {busy ? 'Signing in…' : 'Sign in'}
+              </Button>
+
+              <div className="auth-links">
+                <button type="button" className="link-btn" onClick={() => switchMode('signup')}>
+                  Create an account
+                </button>
+              </div>
+            </form>
+          )
+        ) : cloud ? (
           <form className="auth-form" onSubmit={handleCloudSubmit}>
             {mode === 'signup' && (
               <div className="field">
@@ -2236,8 +2951,8 @@ function LoginScreen() {
 
             <p className="auth-demo-note">
               <strong>Demo mode.</strong> There is no password and your tasks are saved
-              only in this browser. To switch on real accounts with cloud sync, fill in
-              <code>src/lib/supabaseConfig.js</code> — see the README.
+              only in this browser. To switch on real accounts, set
+              <code>API_BASE_URL</code> in <code>src/lib/authConfig.js</code> — see the README.
             </p>
           </form>
         )}
@@ -2260,6 +2975,10 @@ const NAV = [
   { id: 'team',       label: 'Team',       icon: 'users' },
   { id: 'categories', label: 'Categories', icon: 'tag' },
 ];
+
+// Kept apart from the list above: this page is for learning React, not for
+// managing work. Removing these two lines removes the page from the menu.
+const LEARN_NAV = { id: 'learn', label: 'Learn React', icon: 'book' };
 
 function Sidebar({ current, onNavigate, open, onClose }) {
   const { tasks } = useTasks();
@@ -2299,6 +3018,16 @@ function Sidebar({ current, onNavigate, open, onClose }) {
               {counts[item.id] > 0 && <span className="nav-count">{counts[item.id]}</span>}
             </button>
           ))}
+
+          <p className="nav-section">Learning</p>
+          <button
+            className={`nav-item ${current === LEARN_NAV.id ? 'is-active' : ''}`}
+            onClick={() => { onNavigate(LEARN_NAV.id); onClose(); }}
+            aria-current={current === LEARN_NAV.id ? 'page' : undefined}
+          >
+            <Icon name={LEARN_NAV.icon} size={17} />
+            <span>{LEARN_NAV.label}</span>
+          </button>
         </nav>
 
         {overdueCount > 0 && (
@@ -2916,6 +3645,209 @@ function Team() {
   );
 }
 
+/* ===== src/pages/Learn.jsx ===== */
+// ---------------------------------------------------------------------------
+// Learn.jsx — a safe practice page for learning React.
+//
+// Everything on this page is SELF-CONTAINED. It keeps its own little list of
+// three pretend tasks in its own state. It never touches your real tasks,
+// never talks to TaskContext, and never saves anything. Refresh the page and
+// it starts over. Break it, edit it, experiment — nothing real can be lost.
+//
+// It demonstrates the three ideas that make up every React app:
+//
+//   COMPONENT  a function that returns what to draw        (LearnTaskRow)
+//   PROPS      the values a parent hands to a child        (task, onToggle)
+//   STATE      data that, when changed, redraws the screen (practiceTasks)
+// ---------------------------------------------------------------------------
+
+// The three practice tasks we start with.
+// This is a plain constant, NOT state — it never changes. It is only the
+// starting point we copy into state below (and copy again when you reset).
+const LEARN_SEED = [
+  { id: 1, title: 'Read about components', done: true },
+  { id: 2, title: 'Understand props', done: false },
+  { id: 3, title: 'Try changing state', done: false },
+];
+
+// ---------------------------------------------------------------------------
+// THE CHILD COMPONENT
+//
+// Look at what this function receives: { task, onToggle }. Those are PROPS.
+//
+// Notice what it does NOT have:
+//   - no useState        → it remembers nothing of its own
+//   - no idea what a "real" task is
+//   - no way to change the list it came from
+//
+// It only knows how to DRAW one row, and who to CALL when clicked. That is
+// what people mean by a "dumb" or "presentational" component, and it is a
+// good thing: there is almost nowhere for a bug to hide in here.
+// ---------------------------------------------------------------------------
+function LearnTaskRow({ task, onToggle }) {
+  return (
+    <div className={`learn-row ${task.done ? 'is-done' : ''}`}>
+      {/*
+        `onToggle` is a PROP THAT IS A FUNCTION. This is how a child talks
+        back to its parent. The child does not know (and does not care) what
+        happens next — it just reports "this id was clicked".
+
+        Data flows DOWN as props.  Events flow UP as function calls.
+      */}
+      <button
+        className={`check-circle ${task.done ? 'checked' : ''}`}
+        onClick={() => onToggle(task.id)}
+        aria-label={task.done ? `Mark "${task.title}" as not done` : `Mark "${task.title}" as done`}
+      >
+        {task.done && <Icon name="check" size={12} />}
+      </button>
+
+      {/* Curly braces mean "put the value of this JavaScript here". */}
+      <span className="learn-row-title">{task.title}</span>
+
+      <span className="learn-row-state">{task.done ? 'done' : 'to do'}</span>
+    </div>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// THE PARENT COMPONENT
+//
+// This one owns the STATE. It is the single place the list of practice tasks
+// lives, and therefore the only place that can change it.
+// ---------------------------------------------------------------------------
+function Learn() {
+  // useState hands back exactly two things:
+  //   practiceTasks     the value right now — read it as much as you like
+  //   setPracticeTasks  the ONLY way to change it, and it also redraws
+  //
+  // Writing `practiceTasks = somethingElse` would be silently broken: the
+  // value would change but React would never repaint. Always use the setter.
+  const [practiceTasks, setPracticeTasks] = useState(LEARN_SEED);
+
+  // A separate piece of state, just to prove a component can have several.
+  const [clicks, setClicks] = useState(0);
+
+  // This is the function we pass DOWN to each row as the `onToggle` prop.
+  function handleToggle(id) {
+    setClicks((n) => n + 1);
+
+    // IMPORTANT: we build a BRAND NEW array instead of editing the old one.
+    //
+    // React decides whether to redraw by asking "is this the same array as
+    // before?" — not by inspecting every item inside it. If we changed the
+    // existing array in place, it would still be the same array, so React
+    // would see no change and the screen would not update.
+    //
+    // .map() returns a new array for us. For the row we clicked we return a
+    // new object with `done` flipped; every other row is passed through
+    // untouched.
+    setPracticeTasks((previous) =>
+      previous.map((task) =>
+        task.id === id ? { ...task, done: !task.done } : task
+      )
+    );
+  }
+
+  // Plain variables, recalculated on every redraw. They do NOT need to be
+  // state: they can always be worked out from state we already have.
+  // A good rule: if you can calculate it, don't store it.
+  const doneCount = practiceTasks.filter((task) => task.done).length;
+  const allDone = doneCount === practiceTasks.length;
+
+  return (
+    <div className="page">
+      <section className="panel">
+        <div className="panel-head">
+          <h2 className="panel-title">Try it</h2>
+          <span className="panel-meta">Practice only — your real tasks are untouched</span>
+        </div>
+
+        <p className="learn-intro">
+          Click a circle to mark a practice task complete. Watch the counter,
+          the label and the progress line all update together — you only
+          changed one thing, but React redrew everything that depends on it.
+        </p>
+
+        {/*
+          Here is where PROPS are handed over. Each row gets:
+            task      the data to draw
+            onToggle  the function to call when clicked
+
+          `key` is special: React uses it to tell list items apart between
+          redraws. It is not a prop — LearnTaskRow never receives it.
+        */}
+        <div className="learn-list">
+          {practiceTasks.map((task) => (
+            <LearnTaskRow key={task.id} task={task} onToggle={handleToggle} />
+          ))}
+        </div>
+
+        <div className="learn-summary">
+          <div>
+            <p className="learn-count">{doneCount} of {practiceTasks.length} done</p>
+            <p className="learn-hint">
+              {allDone
+                ? 'All three complete. Now press Reset and watch state go back.'
+                : 'This number is not stored anywhere — it is counted fresh on every redraw.'}
+            </p>
+          </div>
+
+          <div className="learn-summary-right">
+            <p className="learn-clicks">{clicks} {clicks === 1 ? 'click' : 'clicks'}</p>
+            <Button
+              variant="secondary"
+              size="sm"
+              onClick={() => { setPracticeTasks(LEARN_SEED); setClicks(0); }}
+            >
+              Reset
+            </Button>
+          </div>
+        </div>
+      </section>
+
+      <section className="panel">
+        <div className="panel-head">
+          <h2 className="panel-title">What happened when you clicked</h2>
+        </div>
+
+        <ol className="learn-steps">
+          <li><strong>You clicked</strong> the circle inside <code>LearnTaskRow</code>.</li>
+          <li><strong>The child called its prop:</strong> <code>onToggle(task.id)</code>. It had no idea what that function does.</li>
+          <li><strong>The parent ran</strong> <code>handleToggle</code>, building a new array with one task flipped.</li>
+          <li><strong>State changed</strong> via <code>setPracticeTasks</code> — this is what tells React to redraw.</li>
+          <li><strong>React redrew</strong> the parent, which passed fresh props down, and every row updated.</li>
+        </ol>
+
+        <p className="learn-note">
+          Your real app does exactly this. The circle on a task card calls
+          <code> onToggle(task.id)</code>, which reaches <code>toggleComplete</code>
+          in <code>TaskContext</code>, which flips the status and saves it. Same
+          three ideas — just with real data and a real place to store it.
+        </p>
+      </section>
+
+      <section className="panel">
+        <div className="panel-head">
+          <h2 className="panel-title">Things to try</h2>
+        </div>
+
+        <p className="learn-note">
+          Open <code>src/pages/Learn.jsx</code> and change something, then run
+          <code> sh build-standalone.sh</code> and refresh.
+        </p>
+
+        <ul className="learn-try">
+          <li>Add a fourth task to <code>LEARN_SEED</code>. The counter adjusts by itself — you did not have to tell it.</li>
+          <li>In <code>LearnTaskRow</code>, show <code>{'{task.id}'}</code> next to the title. Proof that props are just values you read.</li>
+          <li><strong>Break it on purpose:</strong> replace <code>setClicks(n =&gt; n + 1)</code> with <code>clicks + 1</code> and watch the count go wrong. Then put it back.</li>
+          <li>Give <code>LearnTaskRow</code> its own <code>useState</code> and see that each row now remembers separately — state belongs to one component.</li>
+        </ul>
+      </section>
+    </div>
+  );
+}
+
 /* ===== src/App.jsx ===== */
 // ---------------------------------------------------------------------------
 // App.jsx — the root component.
@@ -2935,6 +3867,7 @@ const PAGE_META = {
   calendar:   { title: 'Calendar',   subtitle: 'See your tasks by due date' },
   team:       { title: 'Team',       subtitle: 'People you can assign tasks to' },
   categories: { title: 'Categories', subtitle: 'Organise tasks into groups' },
+  learn:      { title: 'Learn React', subtitle: 'A safe playground — your real tasks are not touched' },
 };
 
 const DEFAULT_FILTERS = {
@@ -2977,6 +3910,7 @@ function Shell() {
       case 'calendar':   return <CalendarView {...shared} />;
       case 'team':       return <Team />;
       case 'categories': return <Categories />;
+      case 'learn':      return <Learn />;
       case 'dashboard':
       default:           return <Dashboard {...shared} />;
     }
